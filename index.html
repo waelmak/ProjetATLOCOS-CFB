@@ -45,8 +45,9 @@
 
 /* ══════════════════════════════════════ RESET */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; overflow-x:hidden; }
+html { scroll-behavior: smooth; }
 body { overflow-x:hidden; -webkit-tap-highlight-color:rgba(0,0,0,0); }
+.tab-nav { overflow-x:auto; overflow-y:visible; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -204,6 +205,7 @@ body {
   padding: 0 40px;
   display: flex; gap: 0;
   position: sticky; top: 60px; z-index: 99;
+  overflow: visible;
 }
 .tab-btn {
   font-family: var(--fd); font-size: 14px; font-weight: 600;
@@ -638,21 +640,34 @@ footer {
     white-space:nowrap;
     flex-wrap:nowrap;
     position:sticky;
-    top:50px;
+    top:48px;
     scroll-snap-type:x mandatory;
+    /* Allow dropdown to overflow vertically */
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
   }
+  .tab-nav::-webkit-scrollbar { display:none; }
   .tab-btn { scroll-snap-align:start; }
   .tab-nav::-webkit-scrollbar { display:none; }
   .tab-btn { padding:11px 14px; font-size:12px; flex-shrink:0; letter-spacing:0; }
 
-  /* Dropdown */
+  /* Dropdown — fixed on mobile to avoid clipping */
   .dropdown-menu {
-    left:0;
-    transform:none;
-    min-width:180px;
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    transform: none;
+    min-width: 100%;
+    border-radius: 0 0 8px 8px;
+    border-left: none;
+    border-right: none;
+    z-index: 9999;
   }
-  .drop-item { padding:10px 16px; font-size:12px; }
-  .drop-item:hover,.drop-item.on { padding-left:20px; }
+  .drop-item { padding:13px 20px; font-size:13px; border-bottom:1px solid var(--divider); }
+  .drop-item:last-child { border-bottom:none; }
+  .drop-item:hover,.drop-item.on { padding-left:28px; }
+  @keyframes dropIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
 
   /* Hero — stack vertically */
   .hero {
@@ -1285,11 +1300,17 @@ function toggleDropdown(btn){
   dropOpen = !dropOpen;
   menu.classList.toggle('open', dropOpen);
   btn.classList.toggle('open', dropOpen);
-  // Mark Construction btn as active
+  // On mobile: position menu below the tab-nav bar
+  if(dropOpen && window.innerWidth <= 768){
+    const nav = document.getElementById('tabNav');
+    const navBottom = nav.getBoundingClientRect().bottom;
+    menu.style.top = navBottom + 'px';
+  } else {
+    menu.style.top = '';
+  }
   document.querySelectorAll('.tab-btn').forEach(b=>{ if(b!==btn) b.classList.remove('on'); });
   btn.classList.add('on');
   if(dropOpen){
-    // Show current sub panel
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on','visible'));
     showPanel('tab-'+currentSub);
   }

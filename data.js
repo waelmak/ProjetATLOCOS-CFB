@@ -32,39 +32,59 @@ const GS = {
     }).filter(row => Object.values(row).some(v => v !== '' && v !== null));
   },
 
-  // Parse INFO sheet (key-value pairs)
+  // Parse INFO sheet (key-value pairs) — col 0 = key, col 1 = value
   parseInfo(rows) {
     const obj = {};
     rows.forEach(row => {
-      const keys = Object.keys(row);
-      if (keys.length >= 2) {
-        const k = String(row[keys[0]] || '').trim();
-        const v = row[keys[1]];
-        if (k && k.length < 35) obj[k] = v;
+      const vals = Object.values(row);
+      const k = String(vals[0] || '').trim();
+      const v = vals[1] !== undefined ? vals[1] : vals[2];
+      if (k && k.length < 40 && k !== '' && !/^(IDENTIFICATION|AVANCEMENT|EVM|MÉTÉO|CALCUL)/i.test(k)) {
+        obj[k] = v;
       }
     });
     return obj;
   },
 
+  // Get value from row ignoring case/spaces/accents
+  _get(row, ...keys) {
+    for (const k of keys) {
+      // exact match
+      if (row[k] !== undefined && row[k] !== null && row[k] !== '') return row[k];
+    }
+    // fuzzy match — normalize key and compare
+    const rKeys = Object.keys(row);
+    for (const k of keys) {
+      const kn = k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+      const found = rKeys.find(rk => {
+        const rn = rk.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+        return rn === kn;
+      });
+      if (found !== undefined && row[found] !== null && row[found] !== undefined && row[found] !== '') return row[found];
+    }
+    return undefined;
+  },
+
   // Parse S-Curve sheet
   parseCourbe(rows) {
     return rows.map(r => {
-      const sem  = String(r['Semaine'] || r['semaine'] || '');
-      const plan = parseFloat(r['Prevu'] || r['prevu'] || 0);
-      const rv   = r['Reel'] !== undefined ? r['Reel'] : r['reel'];
-      const reel = (rv === null || rv === undefined || rv === '') ? null : parseFloat(rv);
+      const sem  = String(GS._get(r,'Semaine','semaine','SEMAINE') || '');
+      const planV = GS._get(r,'Prevu','prevu','PREVU','Prévu','prévu');
+      const reelV = GS._get(r,'Reel','reel','REEL','Réel','réel');
+      const plan  = parseFloat(planV) || 0;
+      const reel  = (reelV === null || reelV === undefined || reelV === '') ? null : parseFloat(reelV);
       return { sem, plan, reel: isNaN(reel) ? null : reel };
-    }).filter(r => r.sem && r.sem !== 'Semaine');
+    }).filter(r => r.sem && r.sem.toLowerCase() !== 'semaine' && r.sem !== '');
   },
 
   // Parse disciplines
   parseDisciplines(rows) {
     return rows.map(r => ({
-      nom  : String(r['Discipline'] || r['discipline'] || ''),
-      plan : parseFloat(r['Prevu']  || r['prevu']  || 0),
-      reel : parseFloat(r['Reel']   || r['reel']   || 0),
-      poids: parseFloat(r['Poids']  || r['poids']  || 0),
-    })).filter(r => r.nom && r.nom !== 'Discipline');
+      nom  : String(GS._get(r,'Discipline','discipline') || ''),
+      plan : parseFloat(GS._get(r,'Prevu','prevu','Prévu','prévu') || 0),
+      reel : parseFloat(GS._get(r,'Reel','reel','Réel','réel') || 0),
+      poids: parseFloat(GS._get(r,'Poids','poids') || 0),
+    })).filter(r => r.nom && r.nom.toLowerCase() !== 'discipline' && r.nom.length > 1);
   },
 
   // Parse jalons
