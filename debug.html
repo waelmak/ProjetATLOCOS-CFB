@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Debug Google Sheets</title>
+<script src="config.js"></script>
+<style>
+body{font-family:monospace;background:#0f172a;color:#e2e8f0;padding:20px;font-size:12px}
+h2{color:#3b82f6;margin:16px 0 6px}
+pre{background:#1e293b;padding:10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap;font-size:11px}
+.ok{color:#22c55e}.err{color:#ef4444}.warn{color:#f59e0b}
+button{background:#1e4d8c;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;margin:4px;font-family:monospace}
+select{background:#1e293b;color:#fff;padding:6px;border:1px solid #334155;border-radius:4px;font-family:monospace}
+</style>
+</head>
+<body>
+<h2>🔍 Debug Google Sheets — CFB Dashboard</h2>
+<p style="color:#94a3b8">Sheet ID dans config.js : <b id="sheetId"></b></p>
+
+<div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <select id="sheetSelect">
+    <option value="INFO">INFO</option>
+    <option value="COURBE_S">COURBE_S</option>
+    <option value="DISCIPLINES">DISCIPLINES</option>
+    <option value="JALONS">JALONS</option>
+  </select>
+  <button onclick="testSheet()">Tester cette feuille</button>
+  <button onclick="testAll()">Tester INFO + COURBE_S</button>
+</div>
+
+<div id="out"></div>
+
+<script>
+document.getElementById('sheetId').textContent = CONFIG.SHEET_ID;
+
+const out = document.getElementById('out');
+function log(h){ out.innerHTML += h; }
+function clear(){ out.innerHTML = ''; }
+
+async function fetchRaw(sheetName){
+  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res  = await fetch(url);
+  const text = await res.text();
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
+  if(!match) throw new Error('Format inattendu — vérifiez que le Sheet est public');
+  return JSON.parse(match[1]);
+}
+
+async function testSheet(){
+  clear();
+  const name = document.getElementById('sheetSelect').value;
+  log(`<h2>Feuille : ${name}</h2>`);
+  try{
+    const json = await fetchRaw(name);
+    const table = json.table;
+    if(!table){ log('<p class="err">Aucune table retournée</p>'); return; }
+
+    // Show columns
+    log(`<h2 class="ok">✅ Colonnes détectées (${table.cols.length})</h2>`);
+    log('<pre>');
+    table.cols.forEach((c,i) => {
+      log(`  [${i}] label="${c.label}" type="${c.type}"\n`);
+    });
+    log('</pre>');
+
+    // Show first 5 rows
+    log(`<h2>Premières lignes (${Math.min(5, (table.rows||[]).length)} / ${(table.rows||[]).length})</h2>`);
+    log('<pre>');
+    (table.rows||[]).slice(0,5).forEach((row,i) => {
+      const vals = (row.c||[]).map(c => c ? JSON.stringify(c.v) : 'null');
+      log(`  Row ${i+1}: [${vals.join(', ')}]\n`);
+    });
+    log('</pre>');
+
+    // Parsed objects
+    const cols = table.cols.map(c=>(c.label||'').trim());
+    log('<h2>Objets parsés (5 premiers)</h2><pre>');
+    (table.rows||[]).slice(0,5).forEach(row => {
+      const obj={};
+      cols.forEach((col,i)=>{
+        const cell = row.c ? row.c[i] : null;
+        obj[col] = cell ? cell.v : null;
+      });
+      log(JSON.stringify(obj,null,2)+'\n');
+    });
+    log('</pre>');
+
+  }catch(e){
+    log(`<p class="err">❌ Erreur : ${e.message}</p>`);
+    log(`<p class="warn">→ Vérifiez que le Google Sheet est bien PUBLIC (Partager → Tout le monde avec le lien)</p>`);
+  }
+}
+
+async function testAll(){
+  clear();
+  log('<h2>Test INFO</h2>');
+  try{
+    const json = await fetchRaw('INFO');
+    const table = json.table;
+    const cols = table.cols.map(c=>(c.label||'').trim());
+    log(`<p class="ok">✅ ${table.rows.length} lignes, colonnes: ${cols.join(' | ')}</p>`);
+
+    // Parse key-value
+    const obj = {};
+    (table.rows||[]).forEach(row => {
+      const k = row.c&&row.c[0]&&row.c[0].v ? String(row.c[0].v).trim() : '';
+      const v = row.c&&row.c[1] ? row.c[1].v : null;
+      if(k && k.length < 35) obj[k] = v;
+    });
+    log('<pre>');
+    const needed = ['Projet','Semaine','Date','Avancement_reel','Avancement_prevu','SPI','CPI','BAC','BCWP','BCWS','ACWP'];
+    needed.forEach(k=>{
+      const v = obj[k];
+      log(`<span class="${v!==undefined&&v!==null?'ok':'err'}">${k}: ${JSON.stringify(v)}</span>\n`);
+    });
+    log('</pre>');
+  }catch(e){ log(`<p class="err">❌ ${e.message}</p>`); }
+
+  log('<h2>Test COURBE_S</h2>');
+  try{
+    const json = await fetchRaw('COURBE_S');
+    const table = json.table;
+    const cols = table.cols.map(c=>(c.label||'').trim());
+    log(`<p class="ok">✅ ${table.rows.length} lignes, colonnes: [${cols.join('] [')}]</p>`);
+    log('<pre>');
+    (table.rows||[]).slice(0,5).forEach(row=>{
+      const vals=(row.c||[]).map(c=>c?JSON.stringify(c.v):'null');
+      log(`  ${vals.join(' | ')}\n`);
+    });
+    log('</pre>');
+  }catch(e){ log(`<p class="err">❌ ${e.message}</p>`); }
+}
+</script>
+</body>
+</html>
