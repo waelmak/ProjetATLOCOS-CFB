@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
   // ID de ton Google Sheet (dans l'URL: /spreadsheets/d/XXXX/edit)
-  SHEET_ID: "REMPLACER_PAR_TON_SHEET_ID",
+  SHEET_ID: "1c27SLql6SdWh9r043Fz4NTBES1LfVhFoUvuhKxa89KU",
 
   // Nom des feuilles (onglets) dans ton Google Sheet
   SHEETS: {
