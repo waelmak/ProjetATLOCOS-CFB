@@ -1,121 +1,154 @@
 // ═══════════════════════════════════════════════════════
-// DATA.JS — Lecture Google Sheets via API publique
+// DATA.JS — Lecture Google Sheets via API gviz
+// Parsing par INDEX de colonne — robuste aux lignes de bannière
 // ═══════════════════════════════════════════════════════
 
 const GS = {
-  // Fetch a sheet as array of objects
-  async fetch(sheetName) {
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
+  // Fetch raw gviz rows from a sheet
+  async fetchRows(sheetName) {
     try {
+      const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
       const res  = await fetch(url);
       const text = await res.text();
-      // Google wraps JSON in /*O_o*/google.visualization.Query.setResponse(...)
-      const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1]);
-      return GS.parseTable(json.table);
+      const m = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
+      if (!m) { console.warn(`[GS] "${sheetName}": format inattendu`); return []; }
+      const table = JSON.parse(m[1]).table;
+      return table && table.rows ? table.rows : [];
     } catch(e) {
-      console.warn(`Sheet "${sheetName}" error:`, e.message);
+      console.warn(`[GS] "${sheetName}": ${e.message}`);
       return [];
     }
   },
 
-  // Convert gviz table to array of objects
-  parseTable(table) {
-    if (!table || !table.rows) return [];
-    const cols = table.cols.map(c => (c.label || '').trim());
-    return table.rows.map(row => {
-      const obj = {};
-      cols.forEach((col, i) => {
-        const cell = row.c ? row.c[i] : null;
-        obj[col] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
+  // Safe cell value
+  v(cell) {
+    if (!cell || cell.v === null || cell.v === undefined) return null;
+    return cell.v;
+  },
+  s(cell) { const v = GS.v(cell); return v !== null ? String(v).trim() : ''; },
+  n(cell) { const v = GS.v(cell); if (v === null || v === '') return null; const n = parseFloat(v); return isNaN(n) ? null : n; },
+
+  // ── PARSE COURBE_S ──────────────────────────────────────
+  // Find rows where col[0] matches S1..S99
+  parseCourbe(rows) {
+    const out = [];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const sem = GS.s(cells[0]);
+      if (!/^S\d+$/i.test(sem.trim())) continue;   // only rows like S1, S2...
+      const plan = GS.n(cells[1]);
+      const reel = GS.n(cells[2]);
+      out.push({
+        sem:  sem.trim().toUpperCase(),
+        plan: plan ?? 0,
+        reel: reel,   // null = future
       });
-      return obj;
-    }).filter(row => Object.values(row).some(v => v !== '' && v !== null));
+    }
+    console.log(`[GS] COURBE: ${out.length} semaines, réel jusqu'à`, out.filter(r=>r.reel!==null).slice(-1)[0]?.sem || 'aucune');
+    return out;
   },
 
-  // Parse INFO sheet (key-value pairs) — col 0 = key, col 1 = value
+  // ── PARSE INFO ──────────────────────────────────────────
+  // Key-value pairs: col[0]=key, col[1]=value
   parseInfo(rows) {
     const obj = {};
-    rows.forEach(row => {
-      const vals = Object.values(row);
-      const k = String(vals[0] || '').trim();
-      const v = vals[1] !== undefined ? vals[1] : vals[2];
-      if (k && k.length < 40 && k !== '' && !/^(IDENTIFICATION|AVANCEMENT|EVM|MÉTÉO|CALCUL)/i.test(k)) {
-        obj[k] = v;
-      }
-    });
+    const KNOWN = ['Projet','Semaine','Date','Avancement_reel','Avancement_prevu',
+                   'SPI','CPI','BAC','BCWP','BCWS','ACWP','Commentaire'];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const k = GS.s(cells[0]);
+      const v = GS.v(cells[1]);
+      if (!k || v === null || v === undefined || v === '') continue;
+      if (KNOWN.includes(k)) obj[k] = v;
+    }
+    console.log('[GS] INFO:', JSON.stringify(obj));
     return obj;
   },
 
-  // Get value from row ignoring case/spaces/accents
-  _get(row, ...keys) {
-    for (const k of keys) {
-      // exact match
-      if (row[k] !== undefined && row[k] !== null && row[k] !== '') return row[k];
-    }
-    // fuzzy match — normalize key and compare
-    const rKeys = Object.keys(row);
-    for (const k of keys) {
-      const kn = k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
-      const found = rKeys.find(rk => {
-        const rn = rk.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
-        return rn === kn;
-      });
-      if (found !== undefined && row[found] !== null && row[found] !== undefined && row[found] !== '') return row[found];
-    }
-    return undefined;
-  },
-
-  // Parse S-Curve sheet
-  parseCourbe(rows) {
-    return rows.map(r => {
-      const sem  = String(GS._get(r,'Semaine','semaine','SEMAINE') || '');
-      const planV = GS._get(r,'Prevu','prevu','PREVU','Prévu','prévu');
-      const reelV = GS._get(r,'Reel','reel','REEL','Réel','réel');
-      const plan  = parseFloat(planV) || 0;
-      const reel  = (reelV === null || reelV === undefined || reelV === '') ? null : parseFloat(reelV);
-      return { sem, plan, reel: isNaN(reel) ? null : reel };
-    }).filter(r => r.sem && r.sem.toLowerCase() !== 'semaine' && r.sem !== '');
-  },
-
-  // Parse disciplines
+  // ── PARSE DISCIPLINES ───────────────────────────────────
+  // [0]=Nom [1]=Prevu [2]=Reel [3]=Poids
   parseDisciplines(rows) {
-    return rows.map(r => ({
-      nom  : String(GS._get(r,'Discipline','discipline') || ''),
-      plan : parseFloat(GS._get(r,'Prevu','prevu','Prévu','prévu') || 0),
-      reel : parseFloat(GS._get(r,'Reel','reel','Réel','réel') || 0),
-      poids: parseFloat(GS._get(r,'Poids','poids') || 0),
-    })).filter(r => r.nom && r.nom.toLowerCase() !== 'discipline' && r.nom.length > 1);
+    const out = [];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const nom = GS.s(cells[0]);
+      if (!nom || nom.length < 3 || /^(discipline|total)/i.test(nom)) continue;
+      out.push({
+        nom,
+        plan : GS.n(cells[1]) ?? 0,
+        reel : GS.n(cells[2]) ?? 0,
+        poids: GS.n(cells[3]) ?? 0,
+      });
+    }
+    return out;
   },
 
-  // Parse jalons
+  // ── PARSE JALONS CONTRACTUELS ───────────────────────────
+  // [0]=# [1]=Nom [2]=Poids [3]=Montant [4]=Statut
   parseJalons(rows) {
-    return rows.map(r => ({
-      nom    : String(r['Nom du Jalon'] || r['Nom'] || r['nom'] || r['Jalon de Contrôle'] || ''),
-      date   : String(r['Date'] || r['date'] || ''),
-      debut_p: String(r['Début Planifié'] || r['Début Prévu'] || ''),
-      fin_p  : String(r['Fin Planifiée']  || r['Fin Prévue']  || ''),
-      debut_r: String(r['Début Réel']     || ''),
-      fin_r  : String(r['Fin Réelle']     || ''),
-      tf     : parseFloat(r['Retard (TF)'] || r['TF (jours)'] || 0),
-      statut : String(r['Statut'] || r['statut'] || 'future'),
-      poids  : parseFloat(r['Poids (%)'] || r['Poids'] || 0),
-      montant: parseFloat(r['Montant ($)'] || r['Montant'] || 0),
-    })).filter(r => r.nom && r.nom !== 'Nom du Jalon' && r.nom !== 'Jalon de Contrôle');
+    const out = [];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const c0 = GS.v(cells[0]);
+      const nom = GS.s(cells[1]);
+      if (!nom || nom.length < 3) continue;
+      if (/^(nom du jalon|total)/i.test(nom)) continue;
+      out.push({
+        nom,
+        poids  : GS.n(cells[2]) ?? 0,
+        montant: GS.n(cells[3]) ?? 0,
+        statut : GS.s(cells[4]) || 'future',
+        debut_p:'', fin_p:'', debut_r:'', fin_r:'', tf:0,
+      });
+    }
+    return out;
   },
 
-  // Parse KPI sheet (quantités)
+  // ── PARSE JALONS DE CONTRÔLE ────────────────────────────
+  // [0]=Nom [1]=DebutP [2]=FinP [3]=DebutR [4]=FinR [5]=TF [6]=Statut
+  parseJalonsControl(rows) {
+    const out = [];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const nom = GS.s(cells[0]);
+      if (!nom || nom.length < 3) continue;
+      if (/^(jalon de contrôle|total)/i.test(nom)) continue;
+      out.push({
+        nom,
+        debut_p: GS.s(cells[1]),
+        fin_p  : GS.s(cells[2]),
+        debut_r: GS.s(cells[3]),
+        fin_r  : GS.s(cells[4]),
+        tf     : GS.n(cells[5]) ?? 0,
+        statut : GS.s(cells[6]) || 'future',
+        poids:0, montant:0,
+      });
+    }
+    return out;
+  },
+
+  // ── PARSE KPI (quantités) ───────────────────────────────
+  // [0]=Nom [1]=Exec [2]=Total [3]=Obs
   parseKpi(rows) {
-    return rows.map(r => ({
-      nom    : String(r['Indicateur'] || r['DÉSIGNATION'] || r['Désignation'] || ''),
-      exec_  : parseFloat(r['Valeur Exécutée'] || r['QTÉ EXÉCUTÉE (m³)'] || 0),
-      total  : parseFloat(r['Valeur Totale']   || r['QTÉ TOTALE (m³)']   || 1),
-      obs    : String(r['Observation'] || ''),
-    })).filter(r => r.nom && r.nom !== 'Indicateur' && r.nom !== 'DÉSIGNATION' && r.nom.length > 1);
+    const out = [];
+    for (const row of rows) {
+      const cells = row.c || [];
+      const nom = GS.s(cells[0]);
+      if (!nom || nom.length < 2) continue;
+      if (/^(indicateur|désignation|total)/i.test(nom)) continue;
+      const exec_ = GS.n(cells[1]) ?? 0;
+      const total = GS.n(cells[2]) ?? 1;
+      if (total < 1) continue;
+      out.push({ nom, exec_, total, obs: GS.s(cells[3]) });
+    }
+    return out;
   },
 
-  // Load ALL data at once
+  // ── LOAD ALL ────────────────────────────────────────────
   async loadAll() {
     const S = CONFIG.SHEETS;
+
     const [
       infoRows, courbeRows, discRows, jalonRows,
       terrQteRows, terrJalRows, pieuxKpiRows, pieuxJalRows,
@@ -123,41 +156,42 @@ const GS = {
       engRows, approRows,
       cTerrRows, cPieuxRows, cFondRows, cVrdRows, cCharpRows
     ] = await Promise.all([
-      GS.fetch(S.info),       GS.fetch(S.courbe),      GS.fetch(S.disciplines),
-      GS.fetch(S.jalons),     GS.fetch(S.terrQte),     GS.fetch(S.terrJal),
-      GS.fetch(S.pieuxKpi),   GS.fetch(S.pieuxJal),    GS.fetch(S.fondKpi),
-      GS.fetch(S.fondJal),    GS.fetch(S.vrdKpi),      GS.fetch(S.vrdJal),
-      GS.fetch(S.engineering),GS.fetch(S.appro),
-      GS.fetch(S.courbeTerr), GS.fetch(S.courbePieux), GS.fetch(S.courbeFond),
-      GS.fetch(S.courbeVrd),  GS.fetch(S.courbeCharp),
+      GS.fetchRows(S.info),        GS.fetchRows(S.courbe),       GS.fetchRows(S.disciplines),
+      GS.fetchRows(S.jalons),      GS.fetchRows(S.terrQte),      GS.fetchRows(S.terrJal),
+      GS.fetchRows(S.pieuxKpi),    GS.fetchRows(S.pieuxJal),     GS.fetchRows(S.fondKpi),
+      GS.fetchRows(S.fondJal),     GS.fetchRows(S.vrdKpi),       GS.fetchRows(S.vrdJal),
+      GS.fetchRows(S.engineering), GS.fetchRows(S.appro),
+      GS.fetchRows(S.courbeTerr),  GS.fetchRows(S.courbePieux),  GS.fetchRows(S.courbeFond),
+      GS.fetchRows(S.courbeVrd),   GS.fetchRows(S.courbeCharp),
     ]);
 
     const info = GS.parseInfo(infoRows);
+
     return {
-      projet       : String(info['Projet'] || 'CFB Kamsar'),
-      semaine      : String(info['Semaine'] || '—'),
-      date         : String(info['Date'] || ''),
-      reel_pct     : parseFloat(info['Avancement_reel']  || 0),
-      plan_pct     : parseFloat(info['Avancement_prevu'] || 0),
-      spi          : parseFloat(info['SPI']  || 1),
-      cpi          : parseFloat(info['CPI']  || 1),
-      bcwp         : parseFloat(info['BCWP'] || 0),
-      bcws         : parseFloat(info['BCWS'] || 0),
-      bac          : parseFloat(info['BAC']  || 0),
-      acwp         : parseFloat(info['ACWP'] || 0),
-      commentaire  : String(info['Commentaire'] || ''),
-      photos       : [],
+      projet      : String(info['Projet'] || 'CFB Kamsar'),
+      semaine     : String(info['Semaine'] || '—'),
+      date        : String(info['Date'] || ''),
+      reel_pct    : parseFloat(info['Avancement_reel']  || 0),
+      plan_pct    : parseFloat(info['Avancement_prevu'] || 0),
+      spi         : parseFloat(info['SPI']  || 1),
+      cpi         : parseFloat(info['CPI']  || 1),
+      bcwp        : parseFloat(info['BCWP'] || 0),
+      bcws        : parseFloat(info['BCWS'] || 0),
+      bac         : parseFloat(info['BAC']  || 0),
+      acwp        : parseFloat(info['ACWP'] || 0),
+      commentaire : String(info['Commentaire'] || ''),
+      photos      : [],
       courbe               : GS.parseCourbe(courbeRows),
       disciplines          : GS.parseDisciplines(discRows),
       jalons               : GS.parseJalons(jalonRows),
       terr_qte             : GS.parseKpi(terrQteRows),
-      terr_jalons          : GS.parseJalons(terrJalRows),
+      terr_jalons          : GS.parseJalonsControl(terrJalRows),
       pieux_kpi            : GS.parseKpi(pieuxKpiRows),
-      pieux_jalons         : GS.parseJalons(pieuxJalRows),
+      pieux_jalons         : GS.parseJalonsControl(pieuxJalRows),
       fond_kpi             : GS.parseKpi(fondKpiRows),
-      fond_jalons          : GS.parseJalons(fondJalRows),
+      fond_jalons          : GS.parseJalonsControl(fondJalRows),
       vrd_kpi              : GS.parseKpi(vrdKpiRows),
-      vrd_jalons           : GS.parseJalons(vrdJalRows),
+      vrd_jalons           : GS.parseJalonsControl(vrdJalRows),
       engineering          : engRows,
       appro                : approRows,
       courbe_terrassement  : GS.parseCourbe(cTerrRows),
