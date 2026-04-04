@@ -3,133 +3,118 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Debug Google Sheets</title>
+<title>Debug GSheets</title>
 <script src="config.js"></script>
+<script src="data.js"></script>
 <style>
-body{font-family:monospace;background:#0f172a;color:#e2e8f0;padding:20px;font-size:12px}
-h2{color:#3b82f6;margin:16px 0 6px}
-pre{background:#1e293b;padding:10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap;font-size:11px}
+body{font-family:monospace;background:#0f172a;color:#e2e8f0;padding:16px;font-size:12px}
+h2{color:#3b82f6;margin:14px 0 4px;font-size:14px}
 .ok{color:#22c55e}.err{color:#ef4444}.warn{color:#f59e0b}
-button{background:#1e4d8c;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;margin:4px;font-family:monospace}
-select{background:#1e293b;color:#fff;padding:6px;border:1px solid #334155;border-radius:4px;font-family:monospace}
+pre{background:#1e293b;padding:10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap;font-size:11px;max-height:300px;overflow-y:auto}
+button{background:#1e4d8c;color:#fff;padding:7px 14px;border:none;border-radius:5px;cursor:pointer;margin:3px;font-family:monospace;font-size:11px}
+select{background:#1e293b;color:#fff;padding:5px;border:1px solid #334155;border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:10px}
+td,th{border:1px solid #334155;padding:4px 8px;text-align:left}
+th{background:#1e4d8c}
+.null{color:#475569;font-style:italic}
 </style>
 </head>
 <body>
-<h2>🔍 Debug Google Sheets — CFB Dashboard</h2>
-<p style="color:#94a3b8">Sheet ID dans config.js : <b id="sheetId"></b></p>
+<h2>🔍 Debug — Sheet: <span id="sid"></span></h2>
 
-<div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-  <select id="sheetSelect">
-    <option value="INFO">INFO</option>
-    <option value="COURBE_S">COURBE_S</option>
-    <option value="DISCIPLINES">DISCIPLINES</option>
-    <option value="JALONS">JALONS</option>
+<div style="margin:10px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+  <select id="sh">
+    <option>INFO</option><option>COURBE_S</option><option>DISCIPLINES</option>
+    <option>JALONS</option><option>TERRASSEMENT_QTE</option><option>TERR_JALONS</option>
+    <option>PIEUX_KPI</option><option>PIEUX_JALONS</option>
   </select>
-  <button onclick="testSheet()">Tester cette feuille</button>
-  <button onclick="testAll()">Tester INFO + COURBE_S</button>
+  <button onclick="testRaw()">Lignes brutes</button>
+  <button onclick="testAll()">Test complet</button>
+  <button onclick="testCourbe()">Debug Courbe S</button>
 </div>
-
 <div id="out"></div>
 
 <script>
-document.getElementById('sheetId').textContent = CONFIG.SHEET_ID;
-
+document.getElementById('sid').textContent = CONFIG.SHEET_ID;
 const out = document.getElementById('out');
-function log(h){ out.innerHTML += h; }
-function clear(){ out.innerHTML = ''; }
+const lg = h => out.innerHTML += h;
+const cl = () => out.innerHTML = '';
 
-async function fetchRaw(sheetName){
-  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-  const res  = await fetch(url);
-  const text = await res.text();
-  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
-  if(!match) throw new Error('Format inattendu — vérifiez que le Sheet est public');
-  return JSON.parse(match[1]);
+async function testRaw(){
+  cl();
+  const name = document.getElementById('sh').value;
+  lg(`<h2>Feuille: ${name} — lignes brutes</h2>`);
+  try{
+    const rows = await GS.fetchRows(name);
+    lg(`<p class="ok">✅ ${rows.length} lignes</p>`);
+    lg('<table><tr><th>#</th>'+Array.from({length:7},(_,i)=>`<th>[${i}]</th>`).join('')+'</tr>');
+    rows.slice(0,20).forEach((r,i)=>{
+      const cells = (r||[]).slice(0,7).map(v=>
+        v===null?`<td class="null">null</td>`:`<td>${JSON.stringify(v)}</td>`
+      ).join('');
+      lg(`<tr><td>${i+1}</td>${cells}</tr>`);
+    });
+    lg('</table>');
+    if(rows.length>20) lg(`<p class="warn">... et ${rows.length-20} lignes de plus</p>`);
+  }catch(e){ lg(`<p class="err">❌ ${e.message}</p>`); }
 }
 
-async function testSheet(){
-  clear();
-  const name = document.getElementById('sheetSelect').value;
-  log(`<h2>Feuille : ${name}</h2>`);
+async function testCourbe(){
+  cl();
+  lg('<h2>Debug Courbe S</h2>');
   try{
-    const json = await fetchRaw(name);
-    const table = json.table;
-    if(!table){ log('<p class="err">Aucune table retournée</p>'); return; }
-
-    // Show columns
-    log(`<h2 class="ok">✅ Colonnes détectées (${table.cols.length})</h2>`);
-    log('<pre>');
-    table.cols.forEach((c,i) => {
-      log(`  [${i}] label="${c.label}" type="${c.type}"\n`);
+    const rows = await GS.fetchRows('COURBE_S');
+    lg(`<p>Lignes brutes: <b>${rows.length}</b></p>`);
+    lg('<h2>Toutes les lignes (col[0] et col[1] et col[2])</h2><pre>');
+    rows.forEach((r,i)=>{
+      const c0=JSON.stringify(r?r[0]:null);
+      const c1=JSON.stringify(r?r[1]:null);
+      const c2=JSON.stringify(r?r[2]:null);
+      const isSem = r && /^s\s*\d+$/i.test(String(r[0]||''));
+      lg(`${isSem?'✅':'  '} Row${i+1}: [${c0}, ${c1}, ${c2}]\n`);
     });
-    log('</pre>');
-
-    // Show first 5 rows
-    log(`<h2>Premières lignes (${Math.min(5, (table.rows||[]).length)} / ${(table.rows||[]).length})</h2>`);
-    log('<pre>');
-    (table.rows||[]).slice(0,5).forEach((row,i) => {
-      const vals = (row.c||[]).map(c => c ? JSON.stringify(c.v) : 'null');
-      log(`  Row ${i+1}: [${vals.join(', ')}]\n`);
-    });
-    log('</pre>');
-
-    // Parsed objects
-    const cols = table.cols.map(c=>(c.label||'').trim());
-    log('<h2>Objets parsés (5 premiers)</h2><pre>');
-    (table.rows||[]).slice(0,5).forEach(row => {
-      const obj={};
-      cols.forEach((col,i)=>{
-        const cell = row.c ? row.c[i] : null;
-        obj[col] = cell ? cell.v : null;
-      });
-      log(JSON.stringify(obj,null,2)+'\n');
-    });
-    log('</pre>');
-
-  }catch(e){
-    log(`<p class="err">❌ Erreur : ${e.message}</p>`);
-    log(`<p class="warn">→ Vérifiez que le Google Sheet est bien PUBLIC (Partager → Tout le monde avec le lien)</p>`);
-  }
+    lg('</pre>');
+    const parsed = GS.parseCourbe(rows);
+    lg(`<p class="${parsed.length>0?'ok':'err'}">${parsed.length>0?'✅':'❌'} Parsé: ${parsed.length} semaines</p>`);
+    if(parsed.length>0){
+      lg('<pre>');
+      parsed.slice(0,5).forEach(r=>lg(JSON.stringify(r)+'\n'));
+      lg('... </pre>');
+    }
+  }catch(e){ lg(`<p class="err">❌ ${e.message}</p>`); }
 }
 
 async function testAll(){
-  clear();
-  log('<h2>Test INFO</h2>');
+  cl();
+  lg('<h2>Test complet loadAll()</h2>');
   try{
-    const json = await fetchRaw('INFO');
-    const table = json.table;
-    const cols = table.cols.map(c=>(c.label||'').trim());
-    log(`<p class="ok">✅ ${table.rows.length} lignes, colonnes: ${cols.join(' | ')}</p>`);
+    const d = await GS.loadAll();
+    lg(`<p class="ok">✅ Données chargées</p>`);
+    lg(`<pre>
+Projet      : ${d.projet}
+Semaine     : ${d.semaine}
+reel_pct    : ${d.reel_pct}
+plan_pct    : ${d.plan_pct}
+SPI / CPI   : ${d.spi} / ${d.cpi}
+courbe      : ${d.courbe.length} semaines (réel: ${d.courbe.filter(r=>r.reel!==null).length})
+disciplines : ${d.disciplines.length}
+jalons      : ${d.jalons.length}
+</pre>`);
 
-    // Parse key-value
-    const obj = {};
-    (table.rows||[]).forEach(row => {
-      const k = row.c&&row.c[0]&&row.c[0].v ? String(row.c[0].v).trim() : '';
-      const v = row.c&&row.c[1] ? row.c[1].v : null;
-      if(k && k.length < 35) obj[k] = v;
-    });
-    log('<pre>');
-    const needed = ['Projet','Semaine','Date','Avancement_reel','Avancement_prevu','SPI','CPI','BAC','BCWP','BCWS','ACWP'];
-    needed.forEach(k=>{
-      const v = obj[k];
-      log(`<span class="${v!==undefined&&v!==null?'ok':'err'}">${k}: ${JSON.stringify(v)}</span>\n`);
-    });
-    log('</pre>');
-  }catch(e){ log(`<p class="err">❌ ${e.message}</p>`); }
+    if(d.courbe.length===0){
+      lg('<p class="err">❌ COURBE VIDE — vérifiez feuille COURBE_S</p>');
+    } else {
+      lg('<h2>Courbe S — 5 premiers</h2><pre>');
+      d.courbe.slice(0,5).forEach(r=>lg(JSON.stringify(r)+'\n'));
+      lg('</pre>');
+    }
 
-  log('<h2>Test COURBE_S</h2>');
-  try{
-    const json = await fetchRaw('COURBE_S');
-    const table = json.table;
-    const cols = table.cols.map(c=>(c.label||'').trim());
-    log(`<p class="ok">✅ ${table.rows.length} lignes, colonnes: [${cols.join('] [')}]</p>`);
-    log('<pre>');
-    (table.rows||[]).slice(0,5).forEach(row=>{
-      const vals=(row.c||[]).map(c=>c?JSON.stringify(c.v):'null');
-      log(`  ${vals.join(' | ')}\n`);
-    });
-    log('</pre>');
-  }catch(e){ log(`<p class="err">❌ ${e.message}</p>`); }
+    if(d.reel_pct===0 && d.plan_pct===0){
+      lg('<p class="err">❌ reel_pct et plan_pct = 0 — vérifiez feuille INFO</p>');
+    }
+  }catch(e){
+    lg(`<p class="err">❌ Erreur: ${e.message}</p>`);
+  }
 }
 </script>
 </body>
