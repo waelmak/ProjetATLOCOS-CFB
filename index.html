@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>CFB Kamsar — Tableau de Bord Avancement</title>
+<title>Travaux de construction de l'atelier de maintenance des locomotives du CFB</title>
 <script src="config.js"></script>
 <script src="data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -113,9 +113,9 @@ body {
 .hero-left { display: flex; flex-direction: column; gap: 8px; }
 .hero-week-row { display: flex; align-items: center; gap: 10px; }
 .week-chip {
-  font-family: var(--fd); font-size: 13px; font-weight: 700;
-  padding: 4px 14px; background: var(--blue); color: #fff;
-  border-radius: 4px; letter-spacing: 1px;
+  font-family: var(--fd); font-size: 20px; font-weight: 800;
+  padding: 6px 20px; background: var(--blue); color: #fff;
+  border-radius: 6px; letter-spacing: 2px;
 }
 .date-chip {
   font-family: var(--fm); font-size: 11px; color: var(--muted);
@@ -172,6 +172,58 @@ body {
 }
 .hero-progress-labels {
   display: flex; justify-content: space-between; margin-top: 5px;
+}
+.hpl { font-family: var(--fm); font-size: 9px; color: var(--muted); }
+
+/* ══ HERO PROGRESS BAR — redesign ══ */
+.hero-progress-wrap { margin-top: 14px; position: relative; width: 100%; }
+.hero-progress-track {
+  height: 20px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.hero-progress-plan {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--border2); border-radius: 99px;
+  transition: width 1.2s cubic-bezier(.16,1,.3,1);
+  z-index: 1;
+}
+.hero-progress-real {
+  position: absolute; top: 0; left: 0; height: 100%;
+  border-radius: 99px;
+  transition: width 1.4s cubic-bezier(.16,1,.3,1);
+  z-index: 2;
+  display: flex; align-items: center; justify-content: flex-end;
+}
+.hero-progress-real::after {
+  content: attr(data-pct);
+  position: absolute; right: -4px;
+  transform: translateX(100%);
+  font-family: var(--fm); font-size: 10px; font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 6px; border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  z-index: 10;
+}
+.hero-progress-plan-marker {
+  position: absolute; top: -4px; height: calc(100% + 8px);
+  width: 2px; z-index: 3;
+  border-radius: 2px; background: var(--text2);
+  transition: left 1.2s cubic-bezier(.16,1,.3,1);
+}
+.hero-progress-plan-marker::after {
+  content: attr(data-lbl);
+  position: absolute; top: -20px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--fm); font-size: 9px; color: var(--muted);
+  white-space: nowrap;
+}
+.hero-progress-labels {
+  display: flex; justify-content: space-between; margin-top: 6px;
 }
 .hpl { font-family: var(--fm); font-size: 9px; color: var(--muted); }
 
@@ -900,6 +952,47 @@ footer {
   .sv-val { font-size:18px; }
 }
 
+/* ══ JALONS TABLE ══ */
+.jl-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.jl-table { width:100%; border-collapse:collapse; font-size:13px; }
+.jl-table th {
+  background:var(--surface2); color:var(--text2);
+  font-family:var(--fm); font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px;
+  padding:10px 12px; border-bottom:2px solid var(--border);
+  text-align:left; white-space:nowrap;
+}
+.jl-table td { padding:10px 12px; border-bottom:1px solid var(--divider); vertical-align:middle; }
+.jl-table tbody tr:hover td { background:var(--blue-l); }
+.jlt-num { width:36px; text-align:center; font-family:var(--fm); font-size:11px; color:var(--muted); }
+.jlt-nom { font-family:var(--fb); font-weight:600; min-width:220px; }
+.jl-stat-icon { margin-right:6px; }
+.jlt-poids,.jlt-montant,.jlt-taux { font-family:var(--fm); font-size:12px; text-align:right; white-space:nowrap; }
+.jlt-av { min-width:130px; }
+.jlt-av-wrap { display:flex; align-items:center; gap:8px; }
+.jlt-av-bar { flex:1; height:8px; background:var(--bg); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
+.jlt-av-fill { height:100%; border-radius:99px; transition:width .8s ease; }
+.jlt-av-val { font-family:var(--fm); font-size:11px; font-weight:700; min-width:34px; text-align:right; }
+.jlt-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-family:var(--fm); font-size:10px; font-weight:700;
+  padding:3px 10px; border-radius:99px; white-space:nowrap;
+}
+.jl-stat-done  { background:var(--green-l); color:var(--green); border:1px solid rgba(13,122,69,.2); }
+.jlt-av-fill.jl-stat-done { background:var(--green); }
+.jl-stat-coming{ background:var(--amber-l); color:var(--amber); border:1px solid rgba(180,83,9,.2); }
+.jlt-av-fill.jl-stat-coming{ background:#D97706; }
+.jl-stat-late  { background:var(--red-l);   color:var(--red);   border:1px solid rgba(192,21,42,.2); }
+.jlt-av-fill.jl-stat-late  { background:var(--red); }
+.jl-stat-future{ background:var(--surface2);color:var(--muted); border:1px solid var(--border); }
+.jlt-av-fill.jl-stat-future{ background:var(--border2); }
+.jlt-total td {
+  background:var(--blue-l); font-family:var(--fm); font-size:12px; font-weight:700;
+  border-top:2px solid var(--blue); padding:12px;
+}
+.jlt-row.done td { background:rgba(13,122,69,.02); }
+.jlt-row.future td { opacity:.85; }
+
 /* ── TOUCH — disable hover effects ── */
 @media(hover:none){
   .kpi-card:hover { transform:none; border-color:var(--border); box-shadow:var(--shadow); }
@@ -918,10 +1011,10 @@ footer {
 <nav class="topbar">
   <div class="topbar-l">
     <a class="parlym-logo" href="#">
-      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxIQEhAQEhIWFREWFhMYFxUSEhERExgVGBoXFhcVExYYHSghGBslGxUVIzIjJSkrLi4uFx8zODUtNyguLisBCgoKDg0OGxAQGi0mHyItLS0vKy0tKystNTUtLS0tLS0tNS0tLS0tMi0tNS0tLi0tLy0tLi0tLSstLS8vLS0vL//AABEIAOEA4QMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABQYCBAcDAf/EAE8QAAIBAgQCBwIICAsGBwAAAAECAAMRBAUSITFBBgcTIlFhcTKBFCNCUmJykdEWNZKTobG0wRczNDZUVXOCssTwFVOks9LUJCVDZIOio//EABgBAQADAQAAAAAAAAAAAAAAAAABAgME/8QAKREBAQEAAQMDBAEFAQEAAAAAAAECEQMSMRMhUUFhofBSMkJxkdGBIv/aAAwDAQACEQMRAD8A7jERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQERMajhQWJAA3JJsAPEmBlEhfwjpv8AyenVxP0qCL2R9K1QrTb3MZH4jpiKZs60EPzamPwiP+Te36ZaZtVu8xaolcwfTHDuLtqRfn6qVekB85qlB3VF830ywUaquAykMpFwVIII8QRxkWWeSal8M4iJCxERAREQEREBERAREQEREBERAREQEREBERAREjs5zLsEXSuutUYJSp3066hubE8lABZjvZVJ34RPdFvD5muaiiUpqpqV3vopKbMbWu7E7JTFxdj4gC5IBrNdjXvUqNTraGN6lW65bQYHYU0uDiqgNhcniDYoe7PlKnq13Y1e0bTUdO7UxlVb/EUd/isLT7w4/OufaZ9tBuHLLdDoV1TVRpEbdjgaVvjKgF1L243HIoNZJP39/f8ATDWrf39/f9vDE0BUANW9QN7LY4MEbnahgKdi4Hg4D7cTxnuddMA9pUpoeGr4JgKJ+qulqo9GmxSpEM1gwcgagpV8SRxHwiue7SXc9xeHyTymVCna7pYeL0gp/OYqtc1B5qLiSr+/v7yiMZhDVILENY3DCp22/iHbCbeqsD5yETFYnL3arhz2lMG9XD6lKEc2UhnNN7c2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" alt="PARLYM" style="height:42px;width:auto;object-fit:contain;border-radius:4px;"/>
+      
     </a>
     <div class="topbar-sep"></div>
-    <span class="proj-label" id="projLabel">—</span>
+    <span class="proj-label" id="projLabel" style="font-size:11px;max-width:420px;line-height:1.3">—</span>
   </div>
   <div class="topbar-r">
     <div class="live-pill"><div class="live-dot"></div>En direct</div>
@@ -1130,7 +1223,7 @@ footer {
           <thead><tr>
             <th>Activité</th><th>Prévu</th>
             <th style="min-width:100px;text-align:right">Réel</th>
-            <th>Poids</th><th>Écart</th><th>Statut</th>
+            <th>Écart</th><th>Statut</th>
           </tr></thead>
           <tbody id="terrBody"></tbody>
         </table></div>
@@ -1204,7 +1297,7 @@ footer {
           <thead><tr>
             <th>Activité</th><th>Prévu</th>
             <th style="min-width:100px;text-align:right">Réel</th>
-            <th>Poids</th><th>Écart</th><th>Statut</th>
+            <th>Écart</th><th>Statut</th>
           </tr></thead>
           <tbody id="pieuxBody"></tbody>
         </table></div>
@@ -1267,7 +1360,7 @@ footer {
           <thead><tr>
             <th>Activité</th><th>Prévu</th>
             <th style="min-width:100px;text-align:right">Réel</th>
-            <th>Poids</th><th>Écart</th><th>Statut</th>
+            <th>Écart</th><th>Statut</th>
           </tr></thead>
           <tbody id="fondBody"></tbody>
         </table></div>
@@ -1309,7 +1402,7 @@ footer {
           <thead><tr>
             <th>Activité</th><th>Prévu</th>
             <th style="min-width:100px;text-align:right">Réel</th>
-            <th>Poids</th><th>Écart</th><th>Statut</th>
+            <th>Écart</th><th>Statut</th>
           </tr></thead>
           <tbody id="vrdBody"></tbody>
         </table></div>
@@ -1351,7 +1444,7 @@ footer {
           <thead><tr>
             <th>Activité</th><th>Prévu</th>
             <th style="min-width:100px;text-align:right">Réel</th>
-            <th>Poids</th><th>Écart</th><th>Statut</th>
+            <th>Écart</th><th>Statut</th>
           </tr></thead>
           <tbody id="charpBody"></tbody>
         </table></div>
@@ -1365,7 +1458,7 @@ footer {
         <div class="card-title"><span class="card-accent amber"></span>Jalons Clés du Projet</div>
         <div class="card-pill ctag-amber" id="jalonCount">—</div>
       </div>
-      <div class="jl-list" id="jlList"></div>
+      <div id="jlList"></div>
     </div>
   </div>
 
@@ -1429,7 +1522,7 @@ footer {
     <span style="font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text);text-transform:uppercase">WAEL MAKHLOUF</span>
     <span style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">PLANIFICATEUR PROJET</span>
   </div>
-  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte · © PARLYM 2025</div>
+  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte</div>
 </footer>
 
 <script>
@@ -1568,15 +1661,37 @@ function paintHero(d){
   document.getElementById('hSem').textContent=d.semaine||'—';
   document.getElementById('hDate').textContent='État au '+( d.date||'—');
   document.getElementById('hTitle').textContent=d.projet||'Travaux de construction de l\'atelier de maintenance des locomotives du CFB';
-  document.getElementById('hPct').textContent=d.reel_pct.toFixed(1);
+  // Color pct based on ecart thresholds
+  const pctColor = v >= -5 ? 'var(--text)' : v >= -10 ? 'var(--amber)' : v >= -20 ? 'var(--red)' : 'var(--red)';
+  const pctAnim  = v < -20 ? 'blink 1s ease infinite' : 'none';
+  const hPctEl = document.getElementById('hPct');
+  hPctEl.textContent=d.reel_pct.toFixed(1);
+  hPctEl.style.color = pctColor;
+  hPctEl.style.animation = pctAnim;
   document.getElementById('hPlanBig').textContent=d.plan_pct.toFixed(1)+' %';
   document.getElementById('hPlanLbl').textContent='Prévu: '+d.plan_pct.toFixed(1)+'%';
   document.getElementById('hEcartLbl').textContent='Écart: '+(v>=0?'+':'')+v.toFixed(1)+'%';
-  // progress bar
-  document.getElementById('hProgPlan').style.width=cl(d.plan_pct,0,100)+'%';
+  // progress bar — redesigned
+  const reelW = cl(d.reel_pct,0,100);
+  const planW = cl(d.plan_pct,0,100);
+  const barColor = v >= -5 ? 'var(--green)' : v >= -10 ? '#D97706' : 'var(--red)';
   const hr=document.getElementById('hProgReal');
-  hr.style.width=cl(d.reel_pct,0,100)+'%';
-  hr.style.background=v>=-2?'var(--green)':v>=-5?'#D97706':'var(--red)';
+  hr.style.width=reelW+'%';
+  hr.style.background = `linear-gradient(90deg, ${barColor}CC, ${barColor})`;
+  hr.setAttribute('data-pct', d.reel_pct.toFixed(1)+'%');
+  hr.style.setProperty('color', barColor);
+  // plan bar (background layer)
+  document.getElementById('hProgPlan').style.width=planW+'%';
+  // plan marker line
+  let marker = document.getElementById('hProgMarker');
+  if(!marker){
+    marker = document.createElement('div');
+    marker.id='hProgMarker';
+    marker.className='hero-progress-plan-marker';
+    document.querySelector('.hero-progress-track').appendChild(marker);
+  }
+  marker.style.left = planW+'%';
+  marker.setAttribute('data-lbl', 'Prévu '+d.plan_pct.toFixed(1)+'%');
   // SV = BCWP - BCWS (si disponible), sinon % réel - % prévu
   const sv = d.reel_pct - d.plan_pct;
   const svSign = sv>=0 ? '+ ' : '− ';
@@ -1611,39 +1726,14 @@ function paintKPIs(d){
 }
 
 /* ══ S-CURVE ══ */
-function paintSCurve(courbe){
-  if(SC){SC.destroy();SC=null;}
-  if(!courbe||!courbe.length) return;
-
-  // Find last index with real data
-  let lastRealIdx = -1;
-  courbe.forEach((r,i)=>{
-    const v = r.reel;
-    if(v!==null && v!==undefined && v!=='' && !isNaN(parseFloat(v))) lastRealIdx=i;
-  });
-
-  const labels = courbe.map(r=>r.sem);
-  const plan   = courbe.map(r=>parseFloat(r.plan)||0);
-
-  // Réel: only fill up to lastRealIdx, rest = null (Chart.js stops line there)
-  const reel = courbe.map((r,i)=>{
-    if(i>lastRealIdx) return null;
-    const v = parseFloat(r.reel);
-    return isNaN(v) ? null : v;
-  });
-
-  const c = document.getElementById('cSCurve').getContext('2d');
-  const gR = c.createLinearGradient(0,0,0,250);
-  gR.addColorStop(0,'rgba(0,82,204,.2)');
-  gR.addColorStop(1,'rgba(0,82,204,0)');
-
-  // Vertical line at current week
-  const vertLine = {
+function buildSCurvePlugin(lastRealIdx, reelColor, planLastVal, reelLastVal, semaine){
+  return {
     id:'vLine',
     afterDraw(chart){
       if(lastRealIdx<0) return;
-      const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+      const {ctx,chartArea:{top,bottom},scales:{x,y}}=chart;
       const px=x.getPixelForValue(lastRealIdx);
+      // Vertical dashed line
       ctx.save();
       ctx.setLineDash([5,4]);
       ctx.strokeStyle='rgba(0,82,204,.35)';
@@ -1653,10 +1743,60 @@ function paintSCurve(courbe){
       ctx.font='600 9px Roboto Mono,monospace';
       ctx.fillStyle='#0052CC';
       ctx.textAlign='center';
-      ctx.fillText('Semaine actuelle',px,top+10);
+      ctx.fillText(semaine||'S. actuelle',px,top+10);
+      // Label: Réel value
+      if(reelLastVal!==null){
+        const py = y.getPixelForValue(reelLastVal);
+        ctx.font='700 11px Roboto Mono,monospace';
+        ctx.fillStyle = reelColor;
+        ctx.textAlign = 'left';
+        ctx.fillText('Réel: '+reelLastVal.toFixed(1)+'%', px+6, py-6);
+      }
+      // Label: Plan value at that index
+      if(planLastVal!==null){
+        const pyP = y.getPixelForValue(planLastVal);
+        ctx.font='600 10px Roboto Mono,monospace';
+        ctx.fillStyle = '#7A8BA8';
+        ctx.textAlign = 'left';
+        ctx.fillText('Prévu: '+planLastVal.toFixed(1)+'%', px+6, pyP+14);
+      }
       ctx.restore();
     }
   };
+}
+
+function paintSCurve(courbe){
+  if(SC){SC.destroy();SC=null;}
+  if(!courbe||!courbe.length) return;
+
+  let lastRealIdx = -1;
+  courbe.forEach((r,i)=>{
+    const v = r.reel;
+    if(v!==null && v!==undefined && v!=='' && !isNaN(parseFloat(v))) lastRealIdx=i;
+  });
+
+  const labels = courbe.map(r=>r.sem);
+  const plan   = courbe.map(r=>parseFloat(r.plan)||0);
+  const reel = courbe.map((r,i)=>{
+    if(i>lastRealIdx) return null;
+    const v = parseFloat(r.reel);
+    return isNaN(v) ? null : v;
+  });
+
+  // Determine color: réel vs plan at lastRealIdx
+  const reelLast = lastRealIdx>=0 ? reel[lastRealIdx] : null;
+  const planLast = lastRealIdx>=0 ? plan[lastRealIdx] : null;
+  const ahead = reelLast!==null && planLast!==null && reelLast >= planLast;
+  const reelColor = ahead ? '#0D7A45' : '#C0152A';
+  const reelGradColor = ahead ? 'rgba(13,122,69,' : 'rgba(192,21,42,';
+
+  const c = document.getElementById('cSCurve').getContext('2d');
+  const gR = c.createLinearGradient(0,0,0,250);
+  gR.addColorStop(0, reelGradColor+'.18)');
+  gR.addColorStop(1, reelGradColor+'0)');
+
+  const curSem = labels[lastRealIdx]||'';
+  const vertLine = buildSCurvePlugin(lastRealIdx, reelColor, planLast, reelLast, curSem);
 
   SC = new Chart(c,{
     type:'line',
@@ -1664,65 +1804,34 @@ function paintSCurve(courbe){
     data:{
       labels,
       datasets:[
-        {
-          label:'Prévu',
-          data:plan,
-          borderColor:'#B0BDD0',
-          backgroundColor:'transparent',
-          borderWidth:1.5,
-          borderDash:[6,3],
-          pointRadius:0,
-          tension:.4,
-          fill:false,
-          spanGaps:true
-        },
-        {
-          label:'Réel',
-          data:reel,
-          borderColor:'#0052CC',
-          backgroundColor:gR,
-          borderWidth:2.5,
-          pointRadius: reel.map((v,i)=> i===lastRealIdx ? 6 : (v!==null ? 2 : 0)),
-          pointBackgroundColor: reel.map((v,i)=> i===lastRealIdx ? '#0052CC' : '#fff'),
-          pointBorderColor: reel.map((_,i)=> '#0052CC'),
-          pointBorderWidth: reel.map((_,i)=> i===lastRealIdx ? 3 : 1),
-          tension:.4,
-          fill:true,
-          spanGaps:false
-        }
+        {label:'Prévu', data:plan, borderColor:'#B0BDD0', backgroundColor:'transparent',
+         borderWidth:1.5, borderDash:[6,3], pointRadius:0, tension:.4, fill:false, spanGaps:true},
+        {label:'Réel', data:reel, borderColor:reelColor, backgroundColor:gR,
+         borderWidth:2.5,
+         pointRadius: reel.map((v,i)=> i===lastRealIdx ? 7 : (v!==null ? 2 : 0)),
+         pointBackgroundColor: reel.map((v,i)=> i===lastRealIdx ? reelColor : '#fff'),
+         pointBorderColor: reel.map(()=> reelColor),
+         pointBorderWidth: reel.map((_,i)=> i===lastRealIdx ? 3 : 1),
+         tension:.4, fill:true, spanGaps:false}
       ]
     },
     options:{
-      responsive:true,
-      maintainAspectRatio:false,
+      responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
+      layout:{padding:{right:90}},
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#0F1C35',
-          borderColor:'rgba(0,82,204,.3)',
-          borderWidth:1,
-          titleColor:'#7A8BA8',
-          bodyColor:'#F0F2F5',
-          padding:10,
-          titleFont:{family:'Roboto Mono',size:10},
-          bodyFont:{family:'Roboto Mono',size:12},
+          backgroundColor:'#0F1C35', borderColor:'rgba(0,82,204,.3)', borderWidth:1,
+          titleColor:'#7A8BA8', bodyColor:'#F0F2F5', padding:10,
+          titleFont:{family:'Roboto Mono',size:10}, bodyFont:{family:'Roboto Mono',size:12},
           filter: item => item.parsed.y !== null,
-          callbacks:{
-            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
-          }
+          callbacks:{label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
         }
       },
       scales:{
-        x:{
-          grid:{color:'rgba(15,28,53,.05)'},
-          ticks:{color:'#7A8BA8',font:{family:'Roboto Mono',size:9},maxTicksLimit:14}
-        },
-        y:{
-          grid:{color:'rgba(15,28,53,.05)'},
-          ticks:{color:'#7A8BA8',font:{family:'Roboto Mono',size:9},callback:v=>v+'%'},
-          min:0, max:100
-        }
+        x:{grid:{color:'rgba(15,28,53,.05)'}, ticks:{color:'#7A8BA8',font:{family:'Roboto Mono',size:9},maxTicksLimit:14}},
+        y:{grid:{color:'rgba(15,28,53,.05)'}, ticks:{color:'#7A8BA8',font:{family:'Roboto Mono',size:9},callback:v=>v+'%'}, min:0, max:100}
       }
     }
   });
@@ -1776,17 +1885,68 @@ function paintJalons(jalons){
   const cnt=document.getElementById('jalonCount');
   cnt.textContent=jalons.length+' jalons';
   if(!jalons.length){el.innerHTML='<div style="font-family:var(--fm);font-size:11px;color:var(--muted);padding:14px 0">Aucun jalon renseigné.</div>';return;}
-  const lbl={done:'✓ Réalisé',late:'⚠ Retard',coming:'→ En cours',future:'◦ À venir'};
   const fmtM = v => { if(!v||v<=0) return '—'; if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M'; if(v>=1e3) return '$'+Math.round(v/1e3)+'K'; return '$'+v.toLocaleString(); };
-  const fmtP = v => { if(!v||v<=0) return '—'; const pct = v<1 ? v*100 : v; return pct.toFixed(2)+'%'; };
-  el.innerHTML=jalons.map(j=>`
-    <div class="jl-row">
-      <div class="jl-dot ${j.statut||'future'}"></div>
-      <div class="jl-info"><div class="jl-name">${j.nom}</div></div>
-      <div class="jl-poids">${fmtP(j.poids||0)}</div>
-      <div class="jl-montant">${fmtM(j.montant||0)}</div>
-      <div class="jl-status ${j.statut||'future'}">${lbl[j.statut||'future']}</div>
-    </div>`).join('');
+  const fmtP = v => { if(!v||v<=0) return '0.00%'; const pct = v<1 ? v*100 : v; return pct.toFixed(2)+'%'; };
+  // Status icons & colors
+  const statMap = {
+    done:    {icon:'🟢', lbl:'Réalisé',     cls:'jl-stat-done'},
+    coming:  {icon:'🟠', lbl:'En cours',    cls:'jl-stat-coming'},
+    late:    {icon:'🔴', lbl:'En retard',   cls:'jl-stat-late'},
+    future:  {icon:'⚪', lbl:'Non réalisé', cls:'jl-stat-future'}
+  };
+  // Totals
+  let totPoids=0, totMontant=0, totAvancement=0;
+  jalons.forEach(j=>{
+    const p = j.poids<1?j.poids*100:j.poids||0;
+    const av = j.avancement||0;
+    totPoids += p;
+    totMontant += j.montant||0;
+    totAvancement += (j.montant||0)*(av/100);
+  });
+  const avgAv = totMontant>0 ? (totAvancement/totMontant*100).toFixed(1) : '—';
+
+  // Build table
+  el.innerHTML=`<div class="jl-table-wrap"><table class="jl-table">
+    <thead><tr>
+      <th class="jlt-num">#</th>
+      <th class="jlt-nom">Désignation du Jalon</th>
+      <th class="jlt-poids">Poids (%)</th>
+      <th class="jlt-montant">Montant ($)</th>
+      <th class="jlt-taux">Taux (%)</th>
+      <th class="jlt-av">Avancement (%)</th>
+      <th class="jlt-stat">Statut</th>
+    </tr></thead>
+    <tbody>
+    ${jalons.map((j,i)=>{
+      const s = statMap[j.statut||'future']||statMap.future;
+      const pct = j.poids<1?j.poids*100:j.poids||0;
+      const av = j.avancement||0;
+      const taux = pct.toFixed(2);
+      return `<tr class="jlt-row ${j.statut||'future'}">
+        <td class="jlt-num">${i+1}</td>
+        <td class="jlt-nom"><span class="jl-stat-icon">${s.icon}</span> ${j.nom}</td>
+        <td class="jlt-poids">${taux}%</td>
+        <td class="jlt-montant">${fmtM(j.montant||0)}</td>
+        <td class="jlt-taux">${taux}%</td>
+        <td class="jlt-av">
+          <div class="jlt-av-wrap">
+            <div class="jlt-av-bar"><div class="jlt-av-fill ${s.cls}" style="width:${av}%"></div></div>
+            <span class="jlt-av-val">${av.toFixed(0)}%</span>
+          </div>
+        </td>
+        <td class="jlt-stat"><span class="jlt-badge ${s.cls}">${s.icon} ${s.lbl}</span></td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+    <tfoot><tr class="jlt-total">
+      <td colspan="2"><strong>TOTAUX</strong></td>
+      <td><strong>${totPoids.toFixed(2)}%</strong></td>
+      <td><strong>${fmtM(totMontant)}</strong></td>
+      <td><strong>${totPoids.toFixed(2)}%</strong></td>
+      <td><strong>${avgAv}%</strong></td>
+      <td>—</td>
+    </tr></tfoot>
+  </table></div>`;
 }
 
 /* ══ CAROUSEL ══ */
@@ -1898,7 +2058,7 @@ function paintDiscTab(prefix, discs, name, courbeGlobal){
   // ── Table ──
   if(tbody){
     if(!filtered.length){
-      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;font-family:var(--fm);font-size:11px;color:var(--muted);padding:24px 0">Aucune activité trouvée.</td></tr>';
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;font-family:var(--fm);font-size:11px;color:var(--muted);padding:24px 0">Aucune activité trouvée.</td></tr>';
     } else {
       tbody.innerHTML = filtered.map(r=>{
         const d=r.reel-r.plan;
@@ -1909,7 +2069,6 @@ function paintDiscTab(prefix, discs, name, courbeGlobal){
           <td class="dn">${r.nom}</td>
           <td>${r.plan.toFixed(1)}%</td>
           <td><div class="bc"><div class="mb"><div class="mbf" style="width:${cl(r.reel,0,100)}%"></div></div>${r.reel.toFixed(1)}%</div></td>
-          <td>${r.poids||'—'}%</td>
           <td class="${cls}">${d>=0?'+':''}${d.toFixed(1)}%</td>
           <td><span class="status-tag ${stCls}">${stTxt}</span></td>
         </tr>`;}).join('');
@@ -1935,22 +2094,36 @@ function paintDiscTab(prefix, discs, name, courbeGlobal){
   if(discCharts[prefix]){ discCharts[prefix].destroy(); }
 
   const ctx = canvas.getContext('2d');
-  const gR = ctx.createLinearGradient(0,0,0,240);
-  gR.addColorStop(0,'rgba(0,82,204,.18)'); gR.addColorStop(1,'rgba(0,82,204,0)');
+
+  // Color based on réel vs plan at last real index
+  const dReelLast = lastRealIdx>=0 ? reelData[lastRealIdx] : null;
+  const dPlanLast = lastRealIdx>=0 ? planData[lastRealIdx] : null;
+  const dAhead = dReelLast!==null && dPlanLast!==null && dReelLast >= dPlanLast;
+  const dColor = dAhead ? '#0D7A45' : '#C0152A';
+  const dGradCol = dAhead ? 'rgba(13,122,69,' : 'rgba(192,21,42,';
+  const dGrad = ctx.createLinearGradient(0,0,0,240);
+  dGrad.addColorStop(0, dGradCol+'.15)'); dGrad.addColorStop(1, dGradCol+'0)');
+  const dSem = labels[lastRealIdx]||'';
+  const dPlugin = buildSCurvePlugin(lastRealIdx, dColor, dPlanLast, dReelLast, dSem);
 
   discCharts[prefix] = new Chart(ctx,{
     type:'line',
+    plugins:[dPlugin],
     data:{labels, datasets:[
       {label:'Prévu', data:planData, borderColor:'#B0BDD0', backgroundColor:'transparent',
        borderWidth:1.5, borderDash:[6,3], pointRadius:0, tension:.4, fill:false, spanGaps:true},
-      {label:'Réel',  data:reelData, borderColor:'#0052CC', backgroundColor:gR,
+      {label:'Réel',  data:reelData, borderColor:dColor, backgroundColor:dGrad,
        borderWidth:2.5,
-       pointRadius:reelData.map((v,i)=>i===lastRealIdx?6:v!==null?2:0),
-       pointBackgroundColor:'#0052CC', tension:.4, fill:true, spanGaps:false}
+       pointRadius:reelData.map((v,i)=>i===lastRealIdx?7:v!==null?2:0),
+       pointBackgroundColor:reelData.map((_,i)=>i===lastRealIdx?dColor:'#fff'),
+       pointBorderColor:reelData.map(()=>dColor),
+       pointBorderWidth:reelData.map((_,i)=>i===lastRealIdx?3:1),
+       tension:.4, fill:true, spanGaps:false}
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
+      layout:{padding:{right:90}},
       plugins:{
         legend:{display:false},
         tooltip:{
