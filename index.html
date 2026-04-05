@@ -219,6 +219,77 @@ body {
 .tab-btn:hover { color: var(--text); }
 .tab-btn.on { color: var(--blue); border-bottom-color: var(--blue); }
 
+/* ══ SECTION HEADER BANNER ══ */
+.section-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+  border-radius: var(--r2);
+  box-shadow: 0 4px 20px rgba(0,82,204,.25);
+  position: relative;
+  overflow: hidden;
+}
+.section-banner::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -20px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+}
+.section-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; right: 40px;
+  width: 80px; height: 80px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
+}
+.sb-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+}
+.sb-text { display: flex; flex-direction: column; gap: 3px; }
+.sb-title {
+  font-family: var(--fd);
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.sb-sub {
+  font-family: var(--fm);
+  font-size: 10px;
+  color: rgba(255,255,255,.65);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.sb-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+@media(max-width:480px){
+  .section-banner { padding:14px 16px; gap:12px; }
+  .sb-title { font-size:18px; }
+  .sb-icon { font-size:24px; }
+  .sb-badge { display:none; }
+}
+
 /* ══ DROPDOWN CONSTRUCTION ══ */
 .dropdown { position: relative; display: inline-flex; align-items: stretch; }
 
@@ -558,6 +629,25 @@ footer {
 .conf { color: var(--red); opacity: .8; font-weight: 600; }
 
 /* ══════════════════════════════════════ TERRASSEMENT QTE */
+.disc-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--blue) 0%, #1a3a6b 100%);
+  color: #fff;
+  font-family: var(--fd); font-size: 11px; font-weight: 800;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  padding: 5px 16px 5px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,82,204,.25);
+  position: relative;
+  overflow: hidden;
+}
+.disc-badge::before {
+  content: '';
+  position: absolute; left:0; top:0; bottom:0; width:3px;
+  background: rgba(255,255,255,.4);
+}
+.disc-badge .db-icon { font-size: 13px; line-height:1; }
+
 .qte-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 @media(max-width:700px){ .qte-grid{grid-template-columns:1fr;} }
 .qte-card {
@@ -997,11 +1087,24 @@ footer {
   <!-- ─── TAB: TERRASSEMENT ─── -->
   <div class="panel" id="tab-terrassement">
 
+    <!-- Section Banner -->
+    <div class="section-banner">
+      <div class="sb-icon">🏗️</div>
+      <div class="sb-text">
+        <div class="sb-title">Terrassement</div>
+        <div class="sb-sub">Déblai · Remblai · Plateforme</div>
+      </div>
+      <span class="sb-badge">Construction</span>
+    </div>
+
     <!-- Quantités -->
     <div class="card">
       <div class="card-hd">
         <div class="card-title"><span class="card-accent"></span>Quantités Terrassement</div>
-        <div class="card-pill ctag-blue">m³</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="disc-badge"><span class="db-icon">🏗</span>Terrassement</span>
+          <div class="card-pill ctag-blue">m³</div>
+        </div>
       </div>
       <div class="qte-grid" id="terrQteGrid"></div>
     </div>
@@ -1058,11 +1161,24 @@ footer {
   <!-- ─── TAB: PIEUX ─── -->
   <div class="panel" id="tab-pieux">
 
+    <!-- Section Banner -->
+    <div class="section-banner">
+      <div class="sb-icon">⚙️</div>
+      <div class="sb-text">
+        <div class="sb-title">Pieux</div>
+        <div class="sb-sub">Fondations Spéciales · Forage</div>
+      </div>
+      <span class="sb-badge">Construction</span>
+    </div>
+
     <!-- KPIs Pieux -->
     <div class="card">
       <div class="card-hd">
         <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Pieux</div>
-        <div class="card-pill ctag-blue">Quantités</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="disc-badge"><span class="db-icon">⚙️</span>Pieux</span>
+          <div class="card-pill ctag-blue">Quantités</div>
+        </div>
       </div>
       <div class="qte-grid" id="pieuxKpiGrid"></div>
     </div>
@@ -1118,6 +1234,17 @@ footer {
   </div>
   <!-- ─── TAB: FONDATION ─── -->
   <div class="panel" id="tab-fondation">
+
+    <!-- Section Banner -->
+    <div class="section-banner">
+      <div class="sb-icon">🔩</div>
+      <div class="sb-text">
+        <div class="sb-title">Fondation</div>
+        <div class="sb-sub">Semelles · Dalles · Béton</div>
+      </div>
+      <span class="sb-badge">Construction</span>
+    </div>
+
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1149,6 +1276,17 @@ footer {
   </div>
   <!-- ─── TAB: VRD ─── -->
   <div class="panel" id="tab-vrd">
+
+    <!-- Section Banner -->
+    <div class="section-banner">
+      <div class="sb-icon">🛤️</div>
+      <div class="sb-text">
+        <div class="sb-title">VRD</div>
+        <div class="sb-sub">Voirie · Réseaux · Drainage</div>
+      </div>
+      <span class="sb-badge">Construction</span>
+    </div>
+
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1180,6 +1318,17 @@ footer {
   </div>
   <!-- ─── TAB: CHARPENTE MÉTALLIQUE ─── -->
   <div class="panel" id="tab-charpente">
+
+    <!-- Section Banner -->
+    <div class="section-banner">
+      <div class="sb-icon">🏢</div>
+      <div class="sb-text">
+        <div class="sb-title">Charpente Métallique</div>
+        <div class="sb-sub">Structure · Bardage · Couverture</div>
+      </div>
+      <span class="sb-badge">Construction</span>
+    </div>
+
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
