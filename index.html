@@ -522,7 +522,6 @@ tbody td:not(:first-child) { text-align: right; font-family: var(--fm); font-siz
   display: grid; grid-template-columns: 12px 1fr 60px 80px 90px;
   align-items: center; gap: 14px;
   padding: 11px 0; border-bottom: 1px solid var(--divider);
-  justify-items: start;
 }
 .jl-info { min-width: 0; }
 .jl-row:last-child { border-bottom: none; }
@@ -542,7 +541,7 @@ tbody td:not(:first-child) { text-align: right; font-family: var(--fm); font-siz
 .jl-status.coming { background: var(--blue-l);  color: var(--blue); }
 .jl-status.future { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 .jl-poids { font-family: var(--fm); font-size: 10px; color: var(--muted); white-space: nowrap; }
-.jl-montant { font-family: var(--fm); font-size: 11px; font-weight: 600; color: var(--text2); white-space: nowrap; text-align: left; }
+.jl-montant { font-family: var(--fm); font-size: 11px; font-weight: 600; color: var(--text2); white-space: nowrap; text-align: right; }
 
 /* ══════════════════════════════════════ PHOTOS CAROUSEL */
 .carousel-wrap { position: relative; }
@@ -996,8 +995,7 @@ footer {
   <div class="state-box">
     <div class="spinner"></div>
     <div class="state-title">Chargement du tableau de bord</div>
-    <div class="state-hint" id="loadHint">Connexion à Google Sheets…</div>
-    <div style="font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:8px" id="loadSheetId"></div>
+    <div class="state-hint">Connexion aux données du projet…</div>
   </div>
 </div>
 
@@ -1515,57 +1513,16 @@ function goTab(id,btn){ goPrimary(id,btn); }
 
 /* ══ LOAD ══ */
 async function boot(){
-  // Afficher le Sheet ID pendant le chargement
-  const sheetEl = document.getElementById('loadSheetId');
-  if(sheetEl) sheetEl.textContent = 'Sheet ID : ' + CONFIG.SHEET_ID;
-  const hints = ['Connexion à Google Sheets…','Lecture des feuilles de données…','Analyse des indicateurs…','Mise en forme du tableau…'];
-  let hi=0;
-  const hintTimer = setInterval(()=>{ const el=document.getElementById('loadHint'); if(el&&hi<hints.length-1) el.textContent=hints[++hi]; }, 3000);
-
-  // Timeout de 15 secondes
-  const timer = setTimeout(()=>{ clearInterval(hintTimer);
-    document.getElementById('loadingEl').innerHTML=`
-      <div class="state-box">
-        <div class="state-icon">⏱️</div>
-        <div class="state-title">Délai de connexion dépassé</div>
-        <div class="state-hint" style="max-width:480px;text-align:left;line-height:1.8">
-          Causes possibles :<br>
-          <b>1.</b> Google Sheet non public → <i>Partager → Tout le monde avec le lien → Lecteur</i><br>
-          <b>2.</b> Sheet ID incorrect dans <code>config.js</code><br>
-          <b>3.</b> Nom de feuille incorrect (vérifiez les onglets du Sheet)<br>
-          <b>4.</b> Connexion internet bloquée (pare-feu réseau)<br><br>
-          <span style="font-family:var(--fm);font-size:10px;color:var(--muted)">Sheet ID : ${CONFIG.SHEET_ID}</span>
-        </div>
-        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--fd);font-size:14px;font-weight:700">🔄 Réessayer</button>
-      </div>`;
-  }, 15000);
-
   try{
     const latest = await GS.loadAll();
-    clearTimeout(timer); clearInterval(hintTimer);
     cur = latest;
     reports = [latest];
     go(latest);
-    const updEl = document.getElementById('updTs');
-    if(updEl) updEl.textContent='MAJ '+
+    document.getElementById('updTs').textContent='MAJ '+
       new Date(latest.updatedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
   }catch(e){
-    clearTimeout(timer); clearInterval(hintTimer);
-    console.error('Boot error:', e);
-    document.getElementById('loadingEl').innerHTML=`
-      <div class="state-box">
-        <div class="state-icon">⚠️</div>
-        <div class="state-title">Erreur de chargement</div>
-        <div class="state-hint" style="max-width:480px;text-align:left;line-height:1.8">
-          <b>Erreur :</b> ${e.message||e}<br><br>
-          Causes possibles :<br>
-          <b>1.</b> Google Sheet non public → <i>Partager → Tout le monde avec le lien → Lecteur</i><br>
-          <b>2.</b> Sheet ID incorrect dans <code>config.js</code><br>
-          <b>3.</b> Noms de feuilles incorrects (INFO, COURBE_S, DISCIPLINES…)<br><br>
-          <span style="font-family:var(--fm);font-size:10px;color:var(--muted)">Sheet ID : ${CONFIG.SHEET_ID}</span>
-        </div>
-        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--fd);font-size:14px;font-weight:700">🔄 Réessayer</button>
-      </div>`;
+    console.error(e);
+    document.getElementById('loadingEl').innerHTML='<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Erreur de chargement</div><div class="state-hint">Vérifiez config.js et que le Google Sheet est public.</div></div>';
   }
 }
 function showEmpty(){
