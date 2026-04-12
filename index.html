@@ -57,6 +57,82 @@ body {
   line-height: 1.55;
 }
 
+
+/* ══════════════════════════════════════ SITE BANNER */
+.site-banner {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  background: #0a1628;
+}
+.site-banner-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,20,60,.55) 0%, rgba(0,10,30,.85) 100%),
+    url("https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1400&q=80&auto=format&fit=crop")
+    center/cover no-repeat;
+}
+.site-banner-content {
+  position: relative; z-index: 2;
+  width: 100%; padding: 0 40px 28px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+}
+.site-banner-left { display: flex; flex-direction: column; gap: 8px; }
+.site-banner-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(6px);
+  padding: 4px 14px; border-radius: 99px;
+  font-family: var(--fm); font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.8); letter-spacing: 2px; text-transform: uppercase;
+}
+.site-banner-tag::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #22c55e; box-shadow: 0 0 6px #22c55e;
+  animation: blink 2s ease infinite;
+}
+.site-banner-title {
+  font-family: var(--fd); font-size: clamp(18px, 2.8vw, 32px);
+  font-weight: 800; color: #fff; letter-spacing: .5px; line-height: 1.15;
+  text-shadow: 0 2px 16px rgba(0,0,0,.5);
+  max-width: 700px;
+}
+.site-banner-sub {
+  font-family: var(--fm); font-size: 10px; color: rgba(255,255,255,.6);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.site-banner-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  flex-shrink: 0;
+}
+.site-banner-badge {
+  background: linear-gradient(135deg, #0052CC, #1A6FE8);
+  border: 1px solid rgba(255,255,255,.2);
+  padding: 8px 18px; border-radius: 8px;
+  font-family: var(--fd); font-size: 11px; font-weight: 700;
+  color: #fff; letter-spacing: 1.5px; text-transform: uppercase;
+  text-align: center; white-space: nowrap;
+}
+.site-banner-client {
+  font-family: var(--fm); font-size: 9px; color: rgba(255,255,255,.5);
+  letter-spacing: 1.5px; text-transform: uppercase; text-align: right;
+}
+/* Gradient line at bottom of banner */
+.site-banner::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #0052CC, #1A6FE8, #22c55e, #1A6FE8, #0052CC);
+}
+@media(max-width:600px){
+  .site-banner { height: 170px; }
+  .site-banner-content { padding: 0 16px 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .site-banner-title { font-size: 16px; }
+  .site-banner-right { align-items: flex-start; }
+}
+
 /* ══════════════════════════════════════ TOPBAR */
 .topbar {
   background: var(--surface);
@@ -69,20 +145,7 @@ body {
 }
 .topbar-l { display: flex; align-items: center; gap: 16px; }
 
-/* PARLYM logo text */
-.parlym-logo {
-  display: flex; align-items: center; gap: 10px;
-  text-decoration: none;
-}
-/* parlym logo img */
-.parlym-name {
-  font-family: var(--fd); font-size: 18px; font-weight: 700;
-  color: var(--blue); letter-spacing: .5px;
-}
-.parlym-role {
-  font-family: var(--fm); font-size: 9px; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--muted); margin-top: 1px;
-}
+
 .topbar-sep { width: 1px; height: 28px; background: var(--border2); }
 .proj-label {
   font-family: var(--fb); font-size: 13px; font-weight: 700;
@@ -706,7 +769,6 @@ footer {
 
   /* Topbar */
   .topbar { padding:0 12px; height:50px; gap:8px; }
-  .parlym-logo img { height:32px; }
   .proj-label,.topbar-sep,.upd-time { display:none; }
   .live-pill span:last-child { display:none; }
 
@@ -862,7 +924,6 @@ footer {
 @media(max-width:480px){
   /* Topbar */
   .topbar { height:46px; }
-  .parlym-logo img { height:28px; }
   .live-pill { display:none; }
 
   /* Hero */
@@ -900,6 +961,36 @@ footer {
   .sv-val { font-size:18px; }
 }
 
+/* ══ ENGINEERING TABLE ══ */
+.eng-table { width:100%; border-collapse:collapse; font-size:12px; }
+.eng-table th {
+  background:#f5f3ff; color:#7C3AED;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px;
+  padding:9px 12px; border-bottom:2px solid #e9d5ff;
+  text-align:left; white-space:nowrap;
+}
+.eng-table td { padding:9px 12px; border-bottom:1px solid var(--divider); vertical-align:middle; }
+.eng-table tbody tr:hover td { background:#faf5ff; }
+.eng-indice {
+  font-family:var(--fm); font-size:11px; font-weight:700;
+  background:#ede9fe; color:#7C3AED;
+  padding:2px 8px; border-radius:4px; display:inline-block;
+}
+.eng-date { font-family:var(--fm); font-size:11px; color:var(--text2); }
+.eng-date.late { color:var(--red); font-weight:600; }
+.eng-date.ok   { color:var(--green); font-weight:600; }
+.eng-stat-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  padding:3px 9px; border-radius:99px; white-space:nowrap;
+}
+.eng-stat-badge.approved { background:var(--green-l); color:var(--green); border:1px solid rgba(13,122,69,.2); }
+.eng-stat-badge.submitted{ background:var(--blue-l);  color:var(--blue);  border:1px solid rgba(0,82,204,.2); }
+.eng-stat-badge.inprogress{background:var(--amber-l); color:var(--amber); border:1px solid rgba(180,83,9,.2); }
+.eng-stat-badge.pending  { background:var(--surface2);color:var(--muted); border:1px solid var(--border); }
+.eng-stat-badge.rejected { background:var(--red-l);   color:var(--red);   border:1px solid rgba(192,21,42,.2); }
+
 /* ── TOUCH — disable hover effects ── */
 @media(hover:none){
   .kpi-card:hover { transform:none; border-color:var(--border); box-shadow:var(--shadow); }
@@ -914,12 +1005,26 @@ footer {
 </head>
 <body>
 
+<!-- ══════════ SITE BANNER ══════════ -->
+<div class="site-banner">
+  <div class="site-banner-bg"></div>
+  <div class="site-banner-content">
+    <div class="site-banner-left">
+      <span class="site-banner-tag">Tableau de Bord · En Direct</span>
+      <div class="site-banner-title">Travaux de construction de l'atelier<br>de maintenance des locomotives du CFB</div>
+      <div class="site-banner-sub">Kamsar, Guinée · Projet ERI / CBG</div>
+    </div>
+    <div class="site-banner-right">
+      <div class="site-banner-badge">CFB KAMSAR</div>
+      <div class="site-banner-client">Client : CBG · PM : ATLOCOS</div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ TOPBAR ══════════ -->
 <nav class="topbar">
   <div class="topbar-l">
-    <a class="parlym-logo" href="#">
-      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxIQEhAQEhIWFREWFhMYFxUSEhERExgVGBoXFhcVExYYHSghGBslGxUVIzIjJSkrLi4uFx8zODUtNyguLisBCgoKDg0OGxAQGi0mHyItLS0vKy0tKystNTUtLS0tLS0tNS0tLS0tMi0tNS0tLi0tLy0tLi0tLSstLS8vLS0vL//AABEIAOEA4QMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABQYCBAcDAf/EAE8QAAIBAgQCBwIICAsGBwAAAAECAAMRBAUSITFBBgcTIlFhcTKBFCNCUmJykdEWNZKTobG0wRczNDZUVXOCssTwFVOks9LUJCVDZIOio//EABgBAQADAQAAAAAAAAAAAAAAAAABAgME/8QAKREBAQEAAQMDBAEFAQEAAAAAAAECEQMSMRMhUUFhofBSMkJxkdGBIv/aAAwDAQACEQMRAD8A7jERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQERMajhQWJAA3JJsAPEmBlEhfwjpv8AyenVxP0qCL2R9K1QrTb3MZH4jpiKZs60EPzamPwiP+Te36ZaZtVu8xaolcwfTHDuLtqRfn6qVekB85qlB3VF830ywUaquAykMpFwVIII8QRxkWWeSal8M4iJCxERAREQEREBERAREQEREBERAREQEREBERAREjs5zLsEXSuutUYJSp3066hubE8lABZjvZVJ34RPdFvD5muaiiUpqpqV3vopKbMbWu7E7JTFxdj4gC5IBrNdjXvUqNTraGN6lW65bQYHYU0uDiqgNhcniDYoe7PlKnq13Y1e0bTUdO7UxlVb/EUd/isLT7w4/OufaZ9tBuHLLdDoV1TVRpEbdjgaVvjKgF1L243HIoNZJP39/f8ATDWrf39/f9vDE0BUANW9QN7LY4MEbnahgKdi4Hg4D7cTxnuddMA9pUpoeGr4JgKJ+qulqo9GmxSpEM1gwcgagpV8SRxHwiue7SXc9xeHyTymVCna7pYeL0gp/OYqtc1B5qLiSr+/v7yiMZhDVILENY3DCp22/iHbCbeqsD5yETFYnL3arhz2lMG9XD6lKEc2UhnNN7c2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" alt="PARLYM" style="height:42px;width:auto;object-fit:contain;border-radius:4px;"/>
-    </a>
+    
     <div class="topbar-sep"></div>
     <span class="proj-label" id="projLabel">—</span>
   </div>
@@ -1100,7 +1205,7 @@ footer {
     <!-- Quantités -->
     <div class="card">
       <div class="card-hd">
-        <div class="card-title"><span class="card-accent"></span>Quantités Terrassement</div>
+        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Terrassement</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="disc-badge"><span class="db-icon">🏗</span>Terrassement</span>
           <div class="card-pill ctag-blue">m³</div>
@@ -1245,6 +1350,18 @@ footer {
       <span class="sb-badge">Construction</span>
     </div>
 
+    <!-- Indicateurs d'Exécution -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Fondation</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="disc-badge"><span class="db-icon">🔩</span>Fondation</span>
+          <div class="card-pill ctag-blue">Quantités</div>
+        </div>
+      </div>
+      <div class="qte-grid" id="fondKpiGrid"></div>
+    </div>
+
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1285,6 +1402,18 @@ footer {
         <div class="sb-sub">Voirie · Réseaux · Drainage</div>
       </div>
       <span class="sb-badge">Construction</span>
+    </div>
+
+    <!-- Indicateurs d'Exécution -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — VRD</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="disc-badge"><span class="db-icon">🛤️</span>VRD</span>
+          <div class="card-pill ctag-blue">Quantités</div>
+        </div>
+      </div>
+      <div class="qte-grid" id="vrdKpiGrid"></div>
     </div>
 
     <div class="g2">
@@ -1329,6 +1458,18 @@ footer {
       <span class="sb-badge">Construction</span>
     </div>
 
+    <!-- Indicateurs d'Exécution -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Charpente Métallique</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="disc-badge"><span class="db-icon">🏢</span>Charpente</span>
+          <div class="card-pill ctag-blue">Quantités</div>
+        </div>
+      </div>
+      <div class="qte-grid" id="charpKpiGrid"></div>
+    </div>
+
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1371,17 +1512,56 @@ footer {
 
   <!-- ─── TAB: ENGINEERING ─── -->
   <div class="panel" id="tab-eng">
+
+    <!-- Section Banner -->
+    <div class="section-banner" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">
+      <div class="sb-icon">📐</div>
+      <div class="sb-text">
+        <div class="sb-title">Engineering</div>
+        <div class="sb-sub">Documents · Études · Approbations</div>
+      </div>
+      <span class="sb-badge">Bureau d'Études</span>
+    </div>
+
+    <!-- KPIs Engineering -->
+    <div class="kpi-strip" id="engKpiStrip" style="margin-bottom:0"></div>
+
+    <!-- Tableau documents -->
     <div class="card">
       <div class="card-hd">
-        <div class="card-title"><span class="card-accent" style="background:var(--amber)"></span>Engineering</div>
-        <div class="card-pill ctag-amber">En cours de configuration</div>
+        <div class="card-title"><span class="card-accent" style="background:#7C3AED"></span>Suivi des Documents d'Engineering</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="card-pill" style="background:#f3e8ff;color:#7C3AED;border:1px solid #e9d5ff" id="engDocCount">—</div>
+        </div>
       </div>
-      <div class="state-box" style="padding:60px 20px">
-        <div class="state-icon">⚙️</div>
-        <div class="state-title">Section Engineering</div>
-        <div class="state-hint">Les données Engineering seront disponibles après configuration des feuilles Excel correspondantes.</div>
+      <div class="disc-scroll">
+        <table class="eng-table">
+          <thead><tr>
+            <th style="min-width:260px">Document / Étude</th>
+            <th style="min-width:60px">Indice</th>
+            <th>Émission Prévue</th>
+            <th>Émission Réelle</th>
+            <th>Appro. Prévue</th>
+            <th>Appro. Réelle</th>
+            <th>Statut</th>
+          </tr></thead>
+          <tbody id="engBody"></tbody>
+        </table>
       </div>
     </div>
+
+    <!-- Courbe S Engineering -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><span class="card-accent" style="background:#7C3AED"></span>Avancement Engineering — Courbe S</div>
+        <div class="leg">
+          <div class="leg-i"><div class="leg-line" style="background:var(--border2)"></div>Prévu</div>
+          <div class="leg-i"><div class="leg-line" style="background:#7C3AED"></div>Réel</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="cEngS"></canvas></div>
+    </div>
+
   </div>
 
   <!-- ─── TAB: APPROVISIONNEMENT ─── -->
@@ -1424,12 +1604,12 @@ footer {
 </main>
 
 <footer>
-  <div class="foot-l">PARLYM · Travaux de construction de l'atelier de maintenance des locomotives du CFB</div>
+  <div class="foot-l">Travaux de construction de l'atelier de maintenance des locomotives du CFB</div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
     <span style="font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text);text-transform:uppercase">WAEL MAKHLOUF</span>
     <span style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">PLANIFICATEUR PROJET</span>
   </div>
-  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte · © PARLYM 2025</div>
+  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte</div>
 </footer>
 
 <script>
@@ -1550,8 +1730,12 @@ function go(d){
   paintPieuxKpi(d.pieux_kpi||[]);
   paintPieuxJalons(d.pieux_jalons||[]);
   paintDiscTab('fond',  d.disciplines||[], 'Fondation',           d.courbe_fondation||d.courbe||[]);
+  paintGenKpi('fondKpiGrid',  d.fond_kpi||[]);
   paintDiscTab('vrd',   d.disciplines||[], 'VRD',                 d.courbe_vrd||d.courbe||[]);
+  paintGenKpi('vrdKpiGrid',   d.vrd_kpi||[]);
   paintDiscTab('charp', d.disciplines||[], 'Charpente Métallique',d.courbe_charpente||d.courbe||[]);
+  paintGenKpi('charpKpiGrid', []);
+  paintEngineering(d.engineering||[]);
   paintComment(d.commentaire||'');
   paintJalons(d.jalons||[]);
   paintCarousel(d.photos||[]);
@@ -1770,6 +1954,70 @@ function paintComment(txt){
   el.innerHTML=txt?txt.replace(/\n/g,'<br>'):'<span class="comment-empty">Aucun commentaire pour cette semaine.</span>';
 }
 
+/* ══ ENGINEERING ══ */
+function paintEngineering(docs){
+  const tbody = document.getElementById('engBody');
+  const cnt   = document.getElementById('engDocCount');
+  if(!tbody) return;
+
+  if(cnt) cnt.textContent = (docs.length||0) + ' documents';
+
+  // KPI strip
+  const approved = docs.filter(d=>/approu?v/i.test(d.statut||'')).length;
+  const submitted= docs.filter(d=>/soumis|submitted/i.test(d.statut||'')).length;
+  const inprog   = docs.filter(d=>/cours|progress/i.test(d.statut||'')).length;
+  const late     = docs.filter(d=>/retard|late/i.test(d.statut||'')).length;
+  const strips = [
+    {l:'Total Documents', v:docs.length, c:'var(--blue)', foot:'Tous statuts'},
+    {l:'Approuvés',       v:approved,    c:'var(--green)',foot:'Validés client'},
+    {l:'Soumis',          v:submitted,   c:'var(--blue)', foot:'En attente appro.'},
+    {l:'En cours',        v:inprog,      c:'var(--amber)',foot:'Production BE'},
+    {l:'En retard',       v:late,        c:'var(--red)',  foot:'Dépassement date'},
+  ];
+  const strip = document.getElementById('engKpiStrip');
+  if(strip) strip.innerHTML = strips.map(k=>`
+    <div class="kpi-card" style="--kc:${k.c};--kvc:${k.c}">
+      <div class="kpi-lbl">${k.l}</div>
+      <div class="kpi-val" style="color:${k.c}">${k.v}</div>
+      <div class="kpi-track"><div class="kpi-fill" style="width:${docs.length>0?Math.round(k.v/docs.length*100):0}%;background:${k.c}"></div></div>
+      <div class="kpi-foot">${k.foot}</div>
+    </div>`).join('');
+
+  if(!docs.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;font-family:var(--fm);font-size:11px;color:var(--muted);padding:32px 0">
+      Aucun document — renseignez la feuille <strong>ENGINEERING</strong> dans Google Sheets.<br>
+      <span style="font-size:10px;opacity:.7">Colonnes : Document, Indice, Émission Prévue, Émission Réelle, Approbation Prévue, Approbation Réelle, Statut</span>
+    </td></tr>`;
+    return;
+  }
+
+  const statMap = {
+    'approuvé':   {cls:'approved',  icon:'✓', lbl:'Approuvé'},
+    'approved':   {cls:'approved',  icon:'✓', lbl:'Approuvé'},
+    'soumis':     {cls:'submitted', icon:'→', lbl:'Soumis'},
+    'submitted':  {cls:'submitted', icon:'→', lbl:'Soumis'},
+    'en cours':   {cls:'inprogress',icon:'◎', lbl:'En cours'},
+    'in progress':{cls:'inprogress',icon:'◎', lbl:'En cours'},
+    'en attente': {cls:'pending',   icon:'◦', lbl:'En attente'},
+    'retard':     {cls:'rejected',  icon:'⚠', lbl:'En retard'},
+  };
+  const getStat = s => statMap[String(s||'').toLowerCase()] || {cls:'pending',icon:'◦',lbl:s||'—'};
+
+  tbody.innerHTML = docs.map(doc=>{
+    const s = getStat(doc.statut);
+    const dCell = (v,cls='')=>`<td class="eng-date ${cls}">${v&&v!=='—'?v:'<span style="color:var(--muted);font-style:italic">—</span>'}</td>`;
+    return `<tr>
+      <td style="font-weight:600;font-size:13px">${doc.nom}</td>
+      <td><span class="eng-indice">${doc.indice||'—'}</span></td>
+      ${dCell(doc.emission_p)}
+      ${dCell(doc.emission_r, doc.emission_r&&doc.emission_p&&doc.emission_r>doc.emission_p?'late':'ok')}
+      ${dCell(doc.appro_p)}
+      ${dCell(doc.appro_r, doc.appro_r&&doc.appro_p&&doc.appro_r>doc.appro_p?'late':'ok')}
+      <td><span class="eng-stat-badge ${s.cls}">${s.icon} ${s.lbl}</span></td>
+    </tr>`;
+  }).join('');
+}
+
 /* ══ JALONS ══ */
 function paintJalons(jalons){
   const el=document.getElementById('jlList');
@@ -1967,6 +2215,35 @@ function paintDiscTab(prefix, discs, name, courbeGlobal){
       }
     }
   });
+}
+
+/* ══ GENERIC KPI GRID ══ */
+function paintGenKpi(gridId, kpis){
+  const el = document.getElementById(gridId);
+  if(!el) return;
+  if(!kpis||!kpis.length){
+    el.innerHTML='<div style="font-family:var(--fm);font-size:11px;color:var(--muted);grid-column:1/-1;padding:14px 0;text-align:center">Renseignez la feuille correspondante dans Google Sheets pour afficher les indicateurs.</div>';
+    return;
+  }
+  const fmt=v=>v>=1000?(v/1000).toFixed(1)+'k':Number.isInteger(v)?v:v.toLocaleString('fr-FR');
+  el.innerHTML=kpis.map(q=>{
+    const exec_=q.exec_||0, total=q.total||1;
+    const ratio=Math.min(exec_/total,1);
+    const pct=(ratio*100).toFixed(1);
+    const color=ratio>=0.9?'var(--green)':ratio>=0.6?'var(--blue)':'var(--amber)';
+    const obsExtra=q.obs?`<div style="font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:4px">${q.obs}</div>`:'';
+    return`<div class="qte-card">
+      <div class="qte-lbl">${q.nom}</div>
+      <div class="qte-vals">
+        <span class="qte-exec" style="color:${color}">${fmt(exec_)}</span>
+        <span class="qte-sep">/</span>
+        <span class="qte-total">${fmt(total)}</span>
+      </div>
+      <div class="qte-bar"><div class="qte-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="qte-ratio" style="color:${color}">${pct}%</div>
+      ${obsExtra}
+    </div>`;
+  }).join('');
 }
 
 /* ══ PIEUX — KPIs ══ */

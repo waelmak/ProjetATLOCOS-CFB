@@ -65,22 +65,22 @@ const GS={
     }catch(e){return[];}
   },
 
-  // Compatibilité debug.html
-  async fetchRows(sheet){
-    const t = await this.fetchTable(sheet);
-    return (t.rows||[]).map(r=>(r.c||[]).map(c=>(!c||c.v===undefined||c.v===null)?null:c.v));
-  },
-  parseCourbe(rows){
-    return rows.filter(r=>/^s\s*\d+$/i.test(String(r[0]||''))).map(r=>({
-      sem:String(r[0]).toUpperCase().replace(/\s/g,''),
-      plan:parseFloat(r[1])||0,
-      reel:r[2]!==null?parseFloat(r[2]):null
-    }));
+  async engineering(){
+    try{
+      const t=await this.fetchTable(CONFIG.SHEETS.engineering);
+      return(t.rows||[]).filter(r=>this.s(r,0).length>2&&!/^(document|étude|désignation|nom)/i.test(this.s(r,0)))
+        .map(r=>({
+          nom:this.s(r,0), indice:this.s(r,1),
+          emission_p:this.s(r,2), emission_r:this.s(r,3),
+          appro_p:this.s(r,4), appro_r:this.s(r,5),
+          statut:this.s(r,6)||'pending'
+        }));
+    }catch(e){console.warn('[GS:ENG]',e.message);return[];}
   },
 
   async loadAll(){
     const S=CONFIG.SHEETS;
-    const[info,courbe,disc,jalons,tQ,tJ,pK,pJ,fK,fJ,vK,vJ,cT,cP,cF,cV,cC]=
+    const[info,courbe,disc,jalons,tQ,tJ,pK,pJ,fK,fJ,vK,vJ,cT,cP,cF,cV,cC,eng]=
     await Promise.all([
       GS.info(),GS.courbe(S.courbe),GS.disc(),GS.jalons(),
       GS.kpi(S.terrQte),GS.jalCtrl(S.terrJal),
@@ -88,7 +88,8 @@ const GS={
       GS.kpi(S.fondKpi),GS.jalCtrl(S.fondJal),
       GS.kpi(S.vrdKpi),GS.jalCtrl(S.vrdJal),
       GS.courbe(S.courbeTerr),GS.courbe(S.courbePieux),
-      GS.courbe(S.courbeFond),GS.courbe(S.courbeVrd),GS.courbe(S.courbeCharp)
+      GS.courbe(S.courbeFond),GS.courbe(S.courbeVrd),GS.courbe(S.courbeCharp),
+      GS.engineering()
     ]);
     return{
       projet:String(info.Projet||'CFB Kamsar'),
@@ -105,6 +106,7 @@ const GS={
       fond_kpi:fK,fond_jalons:fJ,vrd_kpi:vK,vrd_jalons:vJ,
       courbe_terrassement:cT,courbe_pieux:cP,courbe_fondation:cF,
       courbe_vrd:cV,courbe_charpente:cC,
+      engineering:eng,
       updatedAt:new Date().toISOString()
     };
   }
