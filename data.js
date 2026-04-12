@@ -65,6 +65,19 @@ const GS={
     }catch(e){return[];}
   },
 
+  // Compatibilité debug.html
+  async fetchRows(sheet){
+    const t = await this.fetchTable(sheet);
+    return (t.rows||[]).map(r=>(r.c||[]).map(c=>(!c||c.v===undefined||c.v===null)?null:c.v));
+  },
+  parseCourbe(rows){
+    return rows.filter(r=>/^s\s*\d+$/i.test(String(r[0]||''))).map(r=>({
+      sem:String(r[0]).toUpperCase().replace(/\s/g,''),
+      plan:parseFloat(r[1])||0,
+      reel:r[2]!==null?parseFloat(r[2]):null
+    }));
+  },
+
   async loadAll(){
     const S=CONFIG.SHEETS;
     const[info,courbe,disc,jalons,tQ,tJ,pK,pJ,fK,fJ,vK,vJ,cT,cP,cF,cV,cC]=
