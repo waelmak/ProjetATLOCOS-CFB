@@ -71,7 +71,7 @@ body {
 .site-banner-bg {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(0,20,60,.55) 0%, rgba(0,10,30,.85) 100%),
+    linear-gradient(180deg, rgba(0,20,60,.45) 0%, rgba(0,10,30,.82) 100%),
     url("https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1400&q=80&auto=format&fit=crop")
     center/cover no-repeat;
 }
@@ -81,27 +81,35 @@ body {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
 }
 .site-banner-left { display: flex; flex-direction: column; gap: 8px; }
-.site-banner-tag {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+.site-banner-top-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 2px;
+}
+/* EN DIRECT pill inside banner */
+.banner-live-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(13,122,69,.25); border: 1px solid rgba(13,122,69,.5);
   backdrop-filter: blur(6px);
   padding: 4px 14px; border-radius: 99px;
   font-family: var(--fm); font-size: 9px; font-weight: 700;
-  color: rgba(255,255,255,.8); letter-spacing: 2px; text-transform: uppercase;
+  color: #6EE7A0; letter-spacing: 2px; text-transform: uppercase;
 }
-.site-banner-tag::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%;
+.banner-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
   background: #22c55e; box-shadow: 0 0 6px #22c55e;
-  animation: blink 2s ease infinite;
+  animation: blink 2.5s ease infinite; flex-shrink:0;
+}
+.banner-upd-time {
+  font-family: var(--fm); font-size: 9px;
+  color: rgba(255,255,255,.5); letter-spacing: .5px;
 }
 .site-banner-title {
-  font-family: var(--fd); font-size: clamp(18px, 2.8vw, 32px);
+  font-family: var(--fd); font-size: clamp(18px, 2.8vw, 30px);
   font-weight: 800; color: #fff; letter-spacing: .5px; line-height: 1.15;
   text-shadow: 0 2px 16px rgba(0,0,0,.5);
-  max-width: 700px;
+  max-width: 680px;
 }
 .site-banner-sub {
-  font-family: var(--fm); font-size: 10px; color: rgba(255,255,255,.6);
+  font-family: var(--fm); font-size: 10px; color: rgba(255,255,255,.55);
   letter-spacing: 2px; text-transform: uppercase;
 }
 .site-banner-right {
@@ -117,20 +125,20 @@ body {
   text-align: center; white-space: nowrap;
 }
 .site-banner-client {
-  font-family: var(--fm); font-size: 9px; color: rgba(255,255,255,.5);
+  font-family: var(--fm); font-size: 9px; color: rgba(255,255,255,.45);
   letter-spacing: 1.5px; text-transform: uppercase; text-align: right;
 }
-/* Gradient line at bottom of banner */
 .site-banner::after {
   content: '';
   position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
   background: linear-gradient(90deg, #0052CC, #1A6FE8, #22c55e, #1A6FE8, #0052CC);
 }
 @media(max-width:600px){
-  .site-banner { height: 170px; }
-  .site-banner-content { padding: 0 16px 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .site-banner-title { font-size: 16px; }
+  .site-banner { height: 180px; }
+  .site-banner-content { padding: 0 16px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .site-banner-title { font-size: 15px; }
   .site-banner-right { align-items: flex-start; }
+  .banner-upd-time { display: none; }
 }
 
 /* ══════════════════════════════════════ TOPBAR */
@@ -138,14 +146,27 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 0 40px;
-  height: 60px;
-  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
   position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 1px 0 var(--border), 0 2px 8px rgba(15,28,53,.04);
 }
 .topbar-l { display: flex; align-items: center; gap: 16px; }
 
-
+/* PARLYM logo text */
+.parlym-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+/* parlym logo img */
+.parlym-name {
+  font-family: var(--fd); font-size: 18px; font-weight: 700;
+  color: var(--blue); letter-spacing: .5px;
+}
+.parlym-role {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-top: 1px;
+}
 .topbar-sep { width: 1px; height: 28px; background: var(--border2); }
 .proj-label {
   font-family: var(--fb); font-size: 13px; font-weight: 700;
@@ -769,6 +790,7 @@ footer {
 
   /* Topbar */
   .topbar { padding:0 12px; height:50px; gap:8px; }
+  .parlym-logo img { height:32px; }
   .proj-label,.topbar-sep,.upd-time { display:none; }
   .live-pill span:last-child { display:none; }
 
@@ -924,6 +946,7 @@ footer {
 @media(max-width:480px){
   /* Topbar */
   .topbar { height:46px; }
+  .parlym-logo img { height:28px; }
   .live-pill { display:none; }
 
   /* Hero */
@@ -961,36 +984,6 @@ footer {
   .sv-val { font-size:18px; }
 }
 
-/* ══ ENGINEERING TABLE ══ */
-.eng-table { width:100%; border-collapse:collapse; font-size:12px; }
-.eng-table th {
-  background:#f5f3ff; color:#7C3AED;
-  font-family:var(--fm); font-size:9px; font-weight:700;
-  text-transform:uppercase; letter-spacing:1px;
-  padding:9px 12px; border-bottom:2px solid #e9d5ff;
-  text-align:left; white-space:nowrap;
-}
-.eng-table td { padding:9px 12px; border-bottom:1px solid var(--divider); vertical-align:middle; }
-.eng-table tbody tr:hover td { background:#faf5ff; }
-.eng-indice {
-  font-family:var(--fm); font-size:11px; font-weight:700;
-  background:#ede9fe; color:#7C3AED;
-  padding:2px 8px; border-radius:4px; display:inline-block;
-}
-.eng-date { font-family:var(--fm); font-size:11px; color:var(--text2); }
-.eng-date.late { color:var(--red); font-weight:600; }
-.eng-date.ok   { color:var(--green); font-weight:600; }
-.eng-stat-badge {
-  display:inline-flex; align-items:center; gap:4px;
-  font-family:var(--fm); font-size:9px; font-weight:700;
-  padding:3px 9px; border-radius:99px; white-space:nowrap;
-}
-.eng-stat-badge.approved { background:var(--green-l); color:var(--green); border:1px solid rgba(13,122,69,.2); }
-.eng-stat-badge.submitted{ background:var(--blue-l);  color:var(--blue);  border:1px solid rgba(0,82,204,.2); }
-.eng-stat-badge.inprogress{background:var(--amber-l); color:var(--amber); border:1px solid rgba(180,83,9,.2); }
-.eng-stat-badge.pending  { background:var(--surface2);color:var(--muted); border:1px solid var(--border); }
-.eng-stat-badge.rejected { background:var(--red-l);   color:var(--red);   border:1px solid rgba(192,21,42,.2); }
-
 /* ── TOUCH — disable hover effects ── */
 @media(hover:none){
   .kpi-card:hover { transform:none; border-color:var(--border); box-shadow:var(--shadow); }
@@ -1010,7 +1003,10 @@ footer {
   <div class="site-banner-bg"></div>
   <div class="site-banner-content">
     <div class="site-banner-left">
-      <span class="site-banner-tag">Tableau de Bord · En Direct</span>
+      <div class="site-banner-top-row">
+        <span class="banner-live-pill"><span class="banner-live-dot"></span>Tableau de Bord · En Direct</span>
+        <span class="banner-upd-time" id="bannerUpdTime">—</span>
+      </div>
       <div class="site-banner-title">Travaux de construction de l'atelier<br>de maintenance des locomotives du CFB</div>
       <div class="site-banner-sub">Kamsar, Guinée · Projet ERI / CBG</div>
     </div>
@@ -1024,13 +1020,8 @@ footer {
 <!-- ══════════ TOPBAR ══════════ -->
 <nav class="topbar">
   <div class="topbar-l">
-    
-    <div class="topbar-sep"></div>
-    <span class="proj-label" id="projLabel">—</span>
   </div>
   <div class="topbar-r">
-    <div class="live-pill"><div class="live-dot"></div>En direct</div>
-    <span class="upd-time" id="updTime">—</span>
   </div>
 </nav>
 
@@ -1205,7 +1196,7 @@ footer {
     <!-- Quantités -->
     <div class="card">
       <div class="card-hd">
-        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Terrassement</div>
+        <div class="card-title"><span class="card-accent"></span>Quantités Terrassement</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="disc-badge"><span class="db-icon">🏗</span>Terrassement</span>
           <div class="card-pill ctag-blue">m³</div>
@@ -1350,18 +1341,6 @@ footer {
       <span class="sb-badge">Construction</span>
     </div>
 
-    <!-- Indicateurs d'Exécution -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Fondation</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="disc-badge"><span class="db-icon">🔩</span>Fondation</span>
-          <div class="card-pill ctag-blue">Quantités</div>
-        </div>
-      </div>
-      <div class="qte-grid" id="fondKpiGrid"></div>
-    </div>
-
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1402,18 +1381,6 @@ footer {
         <div class="sb-sub">Voirie · Réseaux · Drainage</div>
       </div>
       <span class="sb-badge">Construction</span>
-    </div>
-
-    <!-- Indicateurs d'Exécution -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — VRD</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="disc-badge"><span class="db-icon">🛤️</span>VRD</span>
-          <div class="card-pill ctag-blue">Quantités</div>
-        </div>
-      </div>
-      <div class="qte-grid" id="vrdKpiGrid"></div>
     </div>
 
     <div class="g2">
@@ -1458,18 +1425,6 @@ footer {
       <span class="sb-badge">Construction</span>
     </div>
 
-    <!-- Indicateurs d'Exécution -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="card-accent"></span>Indicateurs d'Exécution — Charpente Métallique</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="disc-badge"><span class="db-icon">🏢</span>Charpente</span>
-          <div class="card-pill ctag-blue">Quantités</div>
-        </div>
-      </div>
-      <div class="qte-grid" id="charpKpiGrid"></div>
-    </div>
-
     <div class="g2">
       <!-- Courbe S discipline -->
       <div class="card">
@@ -1512,56 +1467,17 @@ footer {
 
   <!-- ─── TAB: ENGINEERING ─── -->
   <div class="panel" id="tab-eng">
-
-    <!-- Section Banner -->
-    <div class="section-banner" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">
-      <div class="sb-icon">📐</div>
-      <div class="sb-text">
-        <div class="sb-title">Engineering</div>
-        <div class="sb-sub">Documents · Études · Approbations</div>
-      </div>
-      <span class="sb-badge">Bureau d'Études</span>
-    </div>
-
-    <!-- KPIs Engineering -->
-    <div class="kpi-strip" id="engKpiStrip" style="margin-bottom:0"></div>
-
-    <!-- Tableau documents -->
     <div class="card">
       <div class="card-hd">
-        <div class="card-title"><span class="card-accent" style="background:#7C3AED"></span>Suivi des Documents d'Engineering</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="card-pill" style="background:#f3e8ff;color:#7C3AED;border:1px solid #e9d5ff" id="engDocCount">—</div>
-        </div>
+        <div class="card-title"><span class="card-accent" style="background:var(--amber)"></span>Engineering</div>
+        <div class="card-pill ctag-amber">En cours de configuration</div>
       </div>
-      <div class="disc-scroll">
-        <table class="eng-table">
-          <thead><tr>
-            <th style="min-width:260px">Document / Étude</th>
-            <th style="min-width:60px">Indice</th>
-            <th>Émission Prévue</th>
-            <th>Émission Réelle</th>
-            <th>Appro. Prévue</th>
-            <th>Appro. Réelle</th>
-            <th>Statut</th>
-          </tr></thead>
-          <tbody id="engBody"></tbody>
-        </table>
+      <div class="state-box" style="padding:60px 20px">
+        <div class="state-icon">⚙️</div>
+        <div class="state-title">Section Engineering</div>
+        <div class="state-hint">Les données Engineering seront disponibles après configuration des feuilles Excel correspondantes.</div>
       </div>
     </div>
-
-    <!-- Courbe S Engineering -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title"><span class="card-accent" style="background:#7C3AED"></span>Avancement Engineering — Courbe S</div>
-        <div class="leg">
-          <div class="leg-i"><div class="leg-line" style="background:var(--border2)"></div>Prévu</div>
-          <div class="leg-i"><div class="leg-line" style="background:#7C3AED"></div>Réel</div>
-        </div>
-      </div>
-      <div class="chart-wrap" style="height:240px"><canvas id="cEngS"></canvas></div>
-    </div>
-
   </div>
 
   <!-- ─── TAB: APPROVISIONNEMENT ─── -->
@@ -1604,12 +1520,12 @@ footer {
 </main>
 
 <footer>
-  <div class="foot-l">Travaux de construction de l'atelier de maintenance des locomotives du CFB</div>
+  <div class="foot-l">PARLYM · Travaux de construction de l'atelier de maintenance des locomotives du CFB</div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
     <span style="font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text);text-transform:uppercase">WAEL MAKHLOUF</span>
     <span style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">PLANIFICATEUR PROJET</span>
   </div>
-  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte</div>
+  <div class="foot-r"><span class="conf">CONFIDENTIEL</span> · Diffusion restreinte · © PARLYM 2025</div>
 </footer>
 
 <script>
@@ -1730,18 +1646,16 @@ function go(d){
   paintPieuxKpi(d.pieux_kpi||[]);
   paintPieuxJalons(d.pieux_jalons||[]);
   paintDiscTab('fond',  d.disciplines||[], 'Fondation',           d.courbe_fondation||d.courbe||[]);
-  paintGenKpi('fondKpiGrid',  d.fond_kpi||[]);
   paintDiscTab('vrd',   d.disciplines||[], 'VRD',                 d.courbe_vrd||d.courbe||[]);
-  paintGenKpi('vrdKpiGrid',   d.vrd_kpi||[]);
   paintDiscTab('charp', d.disciplines||[], 'Charpente Métallique',d.courbe_charpente||d.courbe||[]);
-  paintGenKpi('charpKpiGrid', []);
-  paintEngineering(d.engineering||[]);
   paintComment(d.commentaire||'');
   paintJalons(d.jalons||[]);
   paintCarousel(d.photos||[]);
 
   document.getElementById('projLabel').textContent=d.projet||'Travaux de construction de l\'atelier de maintenance des locomotives du CFB';
-  document.getElementById('updTime').textContent='MAJ '+new Date(d.updatedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  const _updTxt='MAJ '+new Date(d.updatedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  const _updEl=document.getElementById('updTime'); if(_updEl) _updEl.textContent=_updTxt;
+  const _bEl=document.getElementById('bannerUpdTime'); if(_bEl) _bEl.textContent=_updTxt;
   document.getElementById('discSemTag').textContent=d.semaine||'—';
   document.getElementById('commentSemTag').textContent=d.semaine||'—';
 }
@@ -1954,70 +1868,6 @@ function paintComment(txt){
   el.innerHTML=txt?txt.replace(/\n/g,'<br>'):'<span class="comment-empty">Aucun commentaire pour cette semaine.</span>';
 }
 
-/* ══ ENGINEERING ══ */
-function paintEngineering(docs){
-  const tbody = document.getElementById('engBody');
-  const cnt   = document.getElementById('engDocCount');
-  if(!tbody) return;
-
-  if(cnt) cnt.textContent = (docs.length||0) + ' documents';
-
-  // KPI strip
-  const approved = docs.filter(d=>/approu?v/i.test(d.statut||'')).length;
-  const submitted= docs.filter(d=>/soumis|submitted/i.test(d.statut||'')).length;
-  const inprog   = docs.filter(d=>/cours|progress/i.test(d.statut||'')).length;
-  const late     = docs.filter(d=>/retard|late/i.test(d.statut||'')).length;
-  const strips = [
-    {l:'Total Documents', v:docs.length, c:'var(--blue)', foot:'Tous statuts'},
-    {l:'Approuvés',       v:approved,    c:'var(--green)',foot:'Validés client'},
-    {l:'Soumis',          v:submitted,   c:'var(--blue)', foot:'En attente appro.'},
-    {l:'En cours',        v:inprog,      c:'var(--amber)',foot:'Production BE'},
-    {l:'En retard',       v:late,        c:'var(--red)',  foot:'Dépassement date'},
-  ];
-  const strip = document.getElementById('engKpiStrip');
-  if(strip) strip.innerHTML = strips.map(k=>`
-    <div class="kpi-card" style="--kc:${k.c};--kvc:${k.c}">
-      <div class="kpi-lbl">${k.l}</div>
-      <div class="kpi-val" style="color:${k.c}">${k.v}</div>
-      <div class="kpi-track"><div class="kpi-fill" style="width:${docs.length>0?Math.round(k.v/docs.length*100):0}%;background:${k.c}"></div></div>
-      <div class="kpi-foot">${k.foot}</div>
-    </div>`).join('');
-
-  if(!docs.length){
-    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;font-family:var(--fm);font-size:11px;color:var(--muted);padding:32px 0">
-      Aucun document — renseignez la feuille <strong>ENGINEERING</strong> dans Google Sheets.<br>
-      <span style="font-size:10px;opacity:.7">Colonnes : Document, Indice, Émission Prévue, Émission Réelle, Approbation Prévue, Approbation Réelle, Statut</span>
-    </td></tr>`;
-    return;
-  }
-
-  const statMap = {
-    'approuvé':   {cls:'approved',  icon:'✓', lbl:'Approuvé'},
-    'approved':   {cls:'approved',  icon:'✓', lbl:'Approuvé'},
-    'soumis':     {cls:'submitted', icon:'→', lbl:'Soumis'},
-    'submitted':  {cls:'submitted', icon:'→', lbl:'Soumis'},
-    'en cours':   {cls:'inprogress',icon:'◎', lbl:'En cours'},
-    'in progress':{cls:'inprogress',icon:'◎', lbl:'En cours'},
-    'en attente': {cls:'pending',   icon:'◦', lbl:'En attente'},
-    'retard':     {cls:'rejected',  icon:'⚠', lbl:'En retard'},
-  };
-  const getStat = s => statMap[String(s||'').toLowerCase()] || {cls:'pending',icon:'◦',lbl:s||'—'};
-
-  tbody.innerHTML = docs.map(doc=>{
-    const s = getStat(doc.statut);
-    const dCell = (v,cls='')=>`<td class="eng-date ${cls}">${v&&v!=='—'?v:'<span style="color:var(--muted);font-style:italic">—</span>'}</td>`;
-    return `<tr>
-      <td style="font-weight:600;font-size:13px">${doc.nom}</td>
-      <td><span class="eng-indice">${doc.indice||'—'}</span></td>
-      ${dCell(doc.emission_p)}
-      ${dCell(doc.emission_r, doc.emission_r&&doc.emission_p&&doc.emission_r>doc.emission_p?'late':'ok')}
-      ${dCell(doc.appro_p)}
-      ${dCell(doc.appro_r, doc.appro_r&&doc.appro_p&&doc.appro_r>doc.appro_p?'late':'ok')}
-      <td><span class="eng-stat-badge ${s.cls}">${s.icon} ${s.lbl}</span></td>
-    </tr>`;
-  }).join('');
-}
-
 /* ══ JALONS ══ */
 function paintJalons(jalons){
   const el=document.getElementById('jlList');
@@ -2215,35 +2065,6 @@ function paintDiscTab(prefix, discs, name, courbeGlobal){
       }
     }
   });
-}
-
-/* ══ GENERIC KPI GRID ══ */
-function paintGenKpi(gridId, kpis){
-  const el = document.getElementById(gridId);
-  if(!el) return;
-  if(!kpis||!kpis.length){
-    el.innerHTML='<div style="font-family:var(--fm);font-size:11px;color:var(--muted);grid-column:1/-1;padding:14px 0;text-align:center">Renseignez la feuille correspondante dans Google Sheets pour afficher les indicateurs.</div>';
-    return;
-  }
-  const fmt=v=>v>=1000?(v/1000).toFixed(1)+'k':Number.isInteger(v)?v:v.toLocaleString('fr-FR');
-  el.innerHTML=kpis.map(q=>{
-    const exec_=q.exec_||0, total=q.total||1;
-    const ratio=Math.min(exec_/total,1);
-    const pct=(ratio*100).toFixed(1);
-    const color=ratio>=0.9?'var(--green)':ratio>=0.6?'var(--blue)':'var(--amber)';
-    const obsExtra=q.obs?`<div style="font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:4px">${q.obs}</div>`:'';
-    return`<div class="qte-card">
-      <div class="qte-lbl">${q.nom}</div>
-      <div class="qte-vals">
-        <span class="qte-exec" style="color:${color}">${fmt(exec_)}</span>
-        <span class="qte-sep">/</span>
-        <span class="qte-total">${fmt(total)}</span>
-      </div>
-      <div class="qte-bar"><div class="qte-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="qte-ratio" style="color:${color}">${pct}%</div>
-      ${obsExtra}
-    </div>`;
-  }).join('');
 }
 
 /* ══ PIEUX — KPIs ══ */
